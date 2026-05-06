@@ -143,10 +143,17 @@ export function calculateResult(
   };
 }
 
+export type LiveSignalLabel =
+  | "No signal yet"
+  | "Leaning Mendix"
+  | "Leaning AWS-native"
+  | "Mixed / hybrid signal";
+
 export function liveSignal(answers: AssessmentAnswers): {
   total: number;
   answered: number;
   leaning: "Mendix" | "AWS-native" | "Hybrid" | null;
+  label: LiveSignalLabel;
 } {
   let total = 0;
   let answered = 0;
@@ -159,10 +166,19 @@ export function liveSignal(answers: AssessmentAnswers): {
     total += answer.score * question.weight;
   }
   if (answered === 0) {
-    return { total, answered, leaning: null };
+    return { total, answered, leaning: null, label: "No signal yet" };
   }
   const type = bandToType(total);
-  const leaning =
-    type === "mendix" ? "Mendix" : type === "aws-native" ? "AWS-native" : "Hybrid";
-  return { total, answered, leaning };
+  if (type === "mendix") {
+    return { total, answered, leaning: "Mendix", label: "Leaning Mendix" };
+  }
+  if (type === "aws-native") {
+    return {
+      total,
+      answered,
+      leaning: "AWS-native",
+      label: "Leaning AWS-native",
+    };
+  }
+  return { total, answered, leaning: "Hybrid", label: "Mixed / hybrid signal" };
 }

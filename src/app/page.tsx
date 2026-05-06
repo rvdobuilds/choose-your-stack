@@ -30,6 +30,14 @@ export default function Home() {
     setAnswers({});
   }, []);
 
+  const handleComplete = useCallback(() => {
+    if (typeof window === "undefined") return;
+    const target = document.getElementById("result");
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, []);
+
   const result = useMemo(() => calculateResult(answers), [answers]);
   const answered = useMemo(() => countAnswered(answers), [answers]);
   const signal = useMemo(() => liveSignal(answers), [answers]);
@@ -44,8 +52,9 @@ export default function Home() {
             answers={answers}
             onSelect={handleSelect}
             onReset={handleReset}
+            onComplete={handleComplete}
             answeredCount={answered}
-            leaning={signal.leaning}
+            signalLabel={signal.label}
           />
           <ResultPanel result={result} answeredCount={answered} />
           <ScoreBreakdown result={result} />
