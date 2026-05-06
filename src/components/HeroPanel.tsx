@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   HERO_HEADLINE,
   HERO_SUBLINE,
@@ -6,7 +7,7 @@ import {
 
 export function HeroPanel() {
   return (
-    <section id="top" className="scroll-mt-20 pt-4 sm:pt-14">
+    <section className="pt-4 sm:pt-14">
       <div className="cys-card-elevated px-4 py-5 sm:px-12 sm:py-14">
         <p className="cys-eyebrow">CHOOSE YOUR STACK</p>
         <h1 className="cys-text mt-2.5 max-w-3xl text-balance text-[1.65rem] font-semibold leading-[1.14] tracking-tight sm:mt-5 sm:text-[2.75rem] sm:leading-[1.1] md:text-[3rem]">
@@ -17,18 +18,18 @@ export function HeroPanel() {
         </p>
 
         <div className="mt-4 flex flex-col gap-2.5 sm:mt-8 sm:flex-row sm:items-center sm:gap-3">
-          <a
-            href="#framework"
+          <Link
+            href="/framework"
             className="cys-button-primary inline-flex h-11 min-w-[12rem] items-center justify-center rounded-full px-6 text-sm font-medium sm:h-12"
           >
             Start assessment
-          </a>
-          <a
-            href="#cost-model"
+          </Link>
+          <Link
+            href="/cost-model"
             className="cys-button-secondary inline-flex h-11 min-w-[12rem] items-center justify-center rounded-full px-6 text-sm font-medium sm:h-12"
           >
             View cost model
-          </a>
+          </Link>
         </div>
 
         <hr className="cys-divider mt-5 sm:mt-10" />

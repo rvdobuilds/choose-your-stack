@@ -5,6 +5,8 @@ export type ResultLabel =
   | "AWS-native candidate"
   | "Hybrid candidate";
 
+export type RecommendationStrength = "Strong" | "Clear" | "Balanced";
+
 export type Signal = -2 | -1 | 0 | 1 | 2;
 
 export type QuestionId =
@@ -57,6 +59,8 @@ export type AssessmentResult = {
   baseType: ResultType;
   hardGateApplied: boolean;
   hardGateReason?: string;
+  hardGateExplanation?: string;
+  recommendationStrength: RecommendationStrength;
   recommendation: string;
   closingNote: string;
   whyItFits: string[];

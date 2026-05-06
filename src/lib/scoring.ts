@@ -8,6 +8,7 @@ import type {
   AssessmentAnswers,
   AssessmentResult,
   Question,
+  RecommendationStrength,
   ResultType,
   ScoreBreakdownRow,
   Signal,
@@ -15,6 +16,7 @@ import type {
 
 const MENDIX_THRESHOLD = -20;
 const AWS_THRESHOLD = 20;
+const STRONG_THRESHOLD = 40;
 
 function explainSignal(question: Question, score: Signal): string {
   if (score <= -2) {
@@ -84,6 +86,27 @@ function evaluateHardGates(answers: AssessmentAnswers): HardGate {
   return null;
 }
 
+const HARD_GATE_EXPLANATIONS: Record<ResultType, string> = {
+  mendix:
+    "This case strongly matches a business-facing process-app pattern, which creates a strong Mendix signal.",
+  "aws-native":
+    "This case strongly matches a high-volume, performance-sensitive technical workload pattern, which creates a strong AWS-native signal.",
+  hybrid:
+    "This case strongly combines business-facing process needs with technical backend demands, which creates a strong hybrid signal.",
+};
+
+function deriveStrength(
+  finalType: ResultType,
+  absScore: number,
+  hardGateApplied: boolean,
+): RecommendationStrength {
+  if (hardGateApplied) return "Strong";
+  if (finalType === "hybrid") return "Balanced";
+  if (absScore >= STRONG_THRESHOLD) return "Strong";
+  if (absScore >= 20) return "Clear";
+  return "Clear";
+}
+
 export function isComplete(answers: AssessmentAnswers): boolean {
   return QUESTIONS.every((q) => Boolean(answers[q.id]));
 }
@@ -125,14 +148,18 @@ export function calculateResult(
   const gate = evaluateHardGates(answers);
   const finalType: ResultType = gate ? gate.type : baseType;
   const content = RESULT_CONTENT[finalType];
+  const hardGateApplied = Boolean(gate);
+  const strength = deriveStrength(finalType, Math.abs(total), hardGateApplied);
 
   return {
     type: finalType,
     label: RESULT_LABELS[finalType],
     score: total,
     baseType,
-    hardGateApplied: Boolean(gate),
+    hardGateApplied,
     hardGateReason: gate?.reason,
+    hardGateExplanation: gate ? HARD_GATE_EXPLANATIONS[finalType] : undefined,
+    recommendationStrength: strength,
     recommendation: content.recommendation,
     closingNote: content.closingNote,
     whyItFits: content.whyItFits,

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { AssessmentResult } from "@/lib/types";
 import { TOTAL_QUESTIONS } from "@/lib/questions";
 import { EXECUTIVE_SUMMARY, RESULT_DISCLAIMER } from "@/lib/result-copy";
@@ -9,11 +10,7 @@ type Props = {
 
 export function ResultPanel({ result, answeredCount }: Props) {
   return (
-    <section
-      id="result"
-      aria-labelledby="result-heading"
-      className="mt-12 scroll-mt-20 sm:mt-24"
-    >
+    <section aria-labelledby="result-heading">
       <header>
         <p className="cys-eyebrow">Recommended direction</p>
         <h2
@@ -48,6 +45,14 @@ function ResultPlaceholder({ answeredCount }: { answeredCount: number }) {
         {answeredCount} of {TOTAL_QUESTIONS} answered. The result appears once
         all questions are complete.
       </p>
+      <div className="mt-5 sm:mt-6">
+        <Link
+          href="/framework"
+          className="cys-button-primary inline-flex h-11 min-w-[12rem] items-center justify-center rounded-full px-6 text-sm font-medium sm:h-12"
+        >
+          Start assessment
+        </Link>
+      </div>
       <p className="cys-text-subtle mt-5 max-w-2xl text-sm leading-6 sm:mt-6">
         {RESULT_DISCLAIMER}
       </p>
@@ -95,20 +100,41 @@ function ResultMemo({ result }: { result: AssessmentResult }) {
           <span className="cys-pill inline-flex h-7 items-center px-3 text-xs uppercase tracking-[0.16em]">
             Recommendation
           </span>
-          {result.hardGateApplied ? (
+          {result.hardGateApplied && (
             <span className="cys-text-faint text-[0.7rem] uppercase tracking-[0.18em]">
-              Hard gate applied
+              Decisive workload signal
             </span>
-          ) : null}
+          )}
         </div>
 
         <h3 className="cys-text mt-3 text-[1.5rem] font-semibold leading-tight sm:mt-5 sm:text-[2.25rem]">
           {result.label}
         </h3>
 
+        <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2 sm:mt-4">
+          <div>
+            <p className="cys-eyebrow">Recommendation strength</p>
+            <p className="cys-text-soft mt-1 text-sm font-medium">
+              {result.recommendationStrength}
+            </p>
+          </div>
+          <div>
+            <p className="cys-eyebrow">Basis</p>
+            <p className="cys-text-subtle mt-1 text-sm">
+              Weighted workload signals{result.hardGateApplied ? " and decisive workload rules" : ""}.
+            </p>
+          </div>
+        </div>
+
         <p className="cys-text-soft mt-3 max-w-3xl text-base leading-7 sm:mt-5 sm:text-[1.05rem] sm:leading-8">
           {result.recommendation}
         </p>
+
+        {result.hardGateApplied && result.hardGateExplanation && (
+          <p className="cys-text-muted mt-3 max-w-3xl text-sm leading-6">
+            {result.hardGateExplanation}
+          </p>
+        )}
 
         <p className="cys-text-muted mt-3 max-w-3xl text-sm leading-6">
           {result.closingNote}
@@ -130,34 +156,11 @@ function ResultMemo({ result }: { result: AssessmentResult }) {
             title="Validation questions before final decision"
             items={result.validationQuestions}
           />
-          <div className="flex flex-col gap-4">
-            <div className="cys-card-muted px-4 py-4 sm:px-5 sm:py-5">
-              <p className="cys-eyebrow">Cost model implication</p>
-              <p className="cys-text-soft mt-3 text-sm leading-6">
-                {result.costModelImplication}
-              </p>
-            </div>
-            <div className="cys-card-muted px-4 py-4 sm:px-5 sm:py-5">
-              <p className="cys-eyebrow">Score</p>
-              <div className="mt-3 flex items-baseline gap-3">
-                <span className="cys-text text-3xl font-semibold tabular-nums">
-                  {result.score > 0 ? `+${result.score}` : result.score}
-                </span>
-                <span className="cys-text-subtle text-xs">
-                  Bands: ≤ −20 Mendix · ≥ +20 AWS-native · between Hybrid
-                </span>
-              </div>
-              {result.hardGateApplied ? (
-                <p className="cys-text-muted mt-3 text-sm leading-6">
-                  <span className="cys-text-warm">Hard gate applied.</span>{" "}
-                  {result.hardGateReason}
-                </p>
-              ) : (
-                <p className="cys-text-subtle mt-3 text-sm leading-6">
-                  No hard gate triggered. Result derived from the weighted score.
-                </p>
-              )}
-            </div>
+          <div className="cys-card-muted px-4 py-4 sm:px-5 sm:py-5">
+            <p className="cys-eyebrow">Cost model implication</p>
+            <p className="cys-text-soft mt-3 text-sm leading-6">
+              {result.costModelImplication}
+            </p>
           </div>
         </div>
       </article>

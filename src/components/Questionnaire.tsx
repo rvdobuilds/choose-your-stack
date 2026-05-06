@@ -1,27 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { QUESTIONS, TOTAL_QUESTIONS } from "@/lib/questions";
-import type { AssessmentAnswers, QuestionId } from "@/lib/types";
+import { useAssessment } from "@/lib/assessment-context";
 import { QuestionCard } from "./QuestionCard";
 
-type Props = {
-  answers: AssessmentAnswers;
-  onSelect: (questionId: QuestionId, answerId: string) => void;
-  onReset: () => void;
-  onComplete: () => void;
-  answeredCount: number;
-  signalLabel: string;
-};
-
-export function Questionnaire({
-  answers,
-  onSelect,
-  onReset,
-  onComplete,
-  answeredCount,
-  signalLabel,
-}: Props) {
+export function Questionnaire() {
+  const router = useRouter();
+  const { answers, answeredCount, select, reset } = useAssessment();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const currentQuestion = QUESTIONS[currentIndex];
@@ -39,23 +26,19 @@ export function Questionnaire({
   const handleNext = () => {
     if (!selectedAnswerId) return;
     if (isLast) {
-      onComplete();
+      router.push("/result");
       return;
     }
     setCurrentIndex((prev) => Math.min(TOTAL_QUESTIONS - 1, prev + 1));
   };
 
   const handleReset = () => {
-    onReset();
+    reset();
     setCurrentIndex(0);
   };
 
   return (
-    <section
-      id="framework"
-      aria-labelledby="framework-heading"
-      className="mt-10 scroll-mt-20 sm:mt-20"
-    >
+    <section aria-labelledby="framework-heading">
       <header>
         <p className="cys-eyebrow">Framework</p>
         <h2
@@ -66,7 +49,7 @@ export function Questionnaire({
         </h2>
         <p className="cys-text-muted mt-2 max-w-2xl text-sm leading-6 sm:mt-3 sm:text-base sm:leading-7">
           Answer twelve workload, capability, and cost-model questions. One
-          at a time. Scoring is deterministic and shown alongside the result.
+          at a time. The recommendation appears after completion.
         </p>
       </header>
 
@@ -76,7 +59,11 @@ export function Questionnaire({
             Question {currentIndex + 1} of {TOTAL_QUESTIONS} ·{" "}
             {answeredCount} of {TOTAL_QUESTIONS} answered
           </span>
-          <span className="cys-text-faint">Current signal: {signalLabel}</span>
+          <span className="cys-text-faint">
+            {answeredCount < TOTAL_QUESTIONS
+              ? "Assessment in progress"
+              : "All questions answered"}
+          </span>
         </div>
         <div
           className="cys-progress-track mt-2 h-1.5"
@@ -111,7 +98,7 @@ export function Questionnaire({
         <QuestionCard
           question={currentQuestion}
           selectedAnswerId={selectedAnswerId}
-          onSelect={onSelect}
+          onSelect={select}
         />
       </div>
 
