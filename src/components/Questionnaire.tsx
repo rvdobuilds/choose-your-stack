@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { QUESTIONS, TOTAL_QUESTIONS } from "@/lib/questions";
 import { useAssessment } from "@/lib/assessment-context";
@@ -8,19 +7,28 @@ import { QuestionCard } from "./QuestionCard";
 
 export function Questionnaire() {
   const router = useRouter();
-  const { answers, answeredCount, select, reset } = useAssessment();
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const {
+    answers,
+    answeredCount,
+    select,
+    reset,
+    currentQuestionIndex,
+    setCurrentQuestionIndex,
+    storageHydrated,
+  } = useAssessment();
 
-  const currentQuestion = QUESTIONS[currentIndex];
+  const currentQuestion = QUESTIONS[currentQuestionIndex];
   const selectedAnswerId = answers[currentQuestion.id];
-  const isFirst = currentIndex === 0;
-  const isLast = currentIndex === TOTAL_QUESTIONS - 1;
+  const isFirst = currentQuestionIndex === 0;
+  const isLast = currentQuestionIndex === TOTAL_QUESTIONS - 1;
 
-  const progress = Math.round(((currentIndex + 1) / TOTAL_QUESTIONS) * 100);
+  const progress = Math.round(
+    ((currentQuestionIndex + 1) / TOTAL_QUESTIONS) * 100,
+  );
 
   const handleBack = () => {
     if (isFirst) return;
-    setCurrentIndex((prev) => Math.max(0, prev - 1));
+    setCurrentQuestionIndex(Math.max(0, currentQuestionIndex - 1));
   };
 
   const handleNext = () => {
@@ -29,13 +37,34 @@ export function Questionnaire() {
       router.push("/result");
       return;
     }
-    setCurrentIndex((prev) => Math.min(TOTAL_QUESTIONS - 1, prev + 1));
+    setCurrentQuestionIndex(
+      Math.min(TOTAL_QUESTIONS - 1, currentQuestionIndex + 1),
+    );
   };
 
   const handleReset = () => {
     reset();
-    setCurrentIndex(0);
+    router.replace("/framework");
   };
+
+  if (!storageHydrated) {
+    return (
+      <section aria-labelledby="framework-heading" aria-busy="true">
+        <header>
+          <p className="cys-eyebrow">Framework</p>
+          <h2
+            id="framework-heading"
+            className="cys-text mt-2 text-[1.4rem] font-semibold leading-tight sm:text-[2rem]"
+          >
+            Workload-fit assessment
+          </h2>
+        </header>
+        <p className="cys-text-subtle mt-6 text-sm leading-6">
+          Restoring assessment…
+        </p>
+      </section>
+    );
+  }
 
   return (
     <section aria-labelledby="framework-heading">
@@ -48,23 +77,26 @@ export function Questionnaire() {
           Workload-fit assessment
         </h2>
         <p className="cys-text-muted mt-2 max-w-2xl text-sm leading-6 sm:mt-3 sm:text-base sm:leading-7">
-          Answer twelve workload, capability, and cost-model questions. One
-          at a time. The recommendation appears after completion.
+          Answer twelve workload, capability, and cost-model questions. One at a
+          time. The recommendation appears after completion.
         </p>
       </header>
 
       <div className="mt-5 sm:mt-6">
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-xs">
           <span className="cys-text-subtle">
-            Question {currentIndex + 1} of {TOTAL_QUESTIONS} ·{" "}
+            Question {currentQuestionIndex + 1} of {TOTAL_QUESTIONS} ·{" "}
             {answeredCount} of {TOTAL_QUESTIONS} answered
           </span>
           <span className="cys-text-faint">Assessment in progress.</span>
         </div>
+        <p className="cys-text-faint mt-1.5 text-[0.7rem] leading-5">
+          Saved locally in this browser.
+        </p>
         <div
           className="cys-progress-track mt-2 h-1.5"
           role="progressbar"
-          aria-valuenow={currentIndex + 1}
+          aria-valuenow={currentQuestionIndex + 1}
           aria-valuemin={1}
           aria-valuemax={TOTAL_QUESTIONS}
           aria-label="Assessment progress"
