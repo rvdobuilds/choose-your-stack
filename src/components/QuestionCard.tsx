@@ -10,7 +10,7 @@ type Props = {
 export function QuestionCard({ question, selectedAnswerId, onSelect }: Props) {
   const groupName = `q-${question.id}`;
   return (
-    <fieldset className="cys-card px-4 py-5 sm:px-8 sm:py-8">
+    <fieldset className="cys-card px-4 py-4 sm:px-8 sm:py-8">
       <legend className="sr-only">{question.title}</legend>
 
       <div className="flex items-baseline justify-between gap-4">

@@ -23,7 +23,7 @@ export function DecisionCaveats() {
 
       <ul className="mt-5 flex flex-col gap-3">
         {CAVEATS.map((caveat) => (
-          <li key={caveat} className="cys-card-muted px-5 py-4">
+          <li key={caveat} className="cys-card-muted px-4 py-3.5 sm:px-5 sm:py-4">
             <p className="cys-text-soft text-sm leading-6">{caveat}</p>
           </li>
         ))}
