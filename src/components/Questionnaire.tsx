@@ -59,11 +59,7 @@ export function Questionnaire() {
             Question {currentIndex + 1} of {TOTAL_QUESTIONS} ·{" "}
             {answeredCount} of {TOTAL_QUESTIONS} answered
           </span>
-          <span className="cys-text-faint">
-            {answeredCount < TOTAL_QUESTIONS
-              ? "Assessment in progress"
-              : "All questions answered"}
-          </span>
+          <span className="cys-text-faint">Assessment in progress.</span>
         </div>
         <div
           className="cys-progress-track mt-2 h-1.5"
@@ -75,15 +71,7 @@ export function Questionnaire() {
         >
           <div className="cys-progress-fill" style={{ width: `${progress}%` }} />
         </div>
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
-          {answeredCount < TOTAL_QUESTIONS ? (
-            <p className="cys-text-faint text-xs leading-5">
-              Answer all questions to generate a platform-direction
-              recommendation.
-            </p>
-          ) : (
-            <span aria-hidden />
-          )}
+        <div className="mt-3 flex flex-wrap items-center justify-end gap-x-4 gap-y-1">
           <button
             type="button"
             onClick={handleReset}
@@ -120,11 +108,6 @@ export function Questionnaire() {
           {isLast ? "Finish" : "Next"}
         </button>
       </div>
-
-      <p className="cys-text-faint mt-5 text-xs leading-6">
-        Answers stay on this device. Final result may change as more answers
-        are added.
-      </p>
     </section>
   );
 }

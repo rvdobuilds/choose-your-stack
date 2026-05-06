@@ -59,15 +59,15 @@ The product should make trade-offs explicit across:
 
 - solution type
 - UI need
-- business logic complexity
+- logic complexity
 - data and event volume
 - performance requirements
 - integration complexity
-- business criticality
-- time-to-market
+- operational criticality
+- delivery and change pattern
 - team capability
-- runtime cost model
-- lock-in tolerance
+- runtime demand variability
+- custom control over runtime and architecture
 - observability and testability needs
 - strategic differentiation
 

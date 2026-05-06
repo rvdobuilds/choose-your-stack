@@ -155,19 +155,24 @@ On desktop, action buttons should not become unnecessarily large.
 
 ## Live snapshot rules
 
-If a live snapshot is used on desktop, keep it subtle.
+During the active assessment, do not show a live directional preview (for example “leaning Mendix” or a running recommendation).
 
-Good live snapshot content:
+On the assessment screen, use neutral copy only, for example:
 
 ```txt
-Answered: 5 of 12
-Current signal: Hybrid leaning AWS-native
-Final result may change as more answers are added.
+Assessment in progress.
 ```
 
-Do not show a complex score calculation while answering.
+Show orientation with:
 
-Do not make users optimise for a desired result.
+```txt
+Question X of 12
+X of 12 answered
+```
+
+and a thin progress bar.
+
+The recommendation is shown only after the assessment is complete (for example on `/result`).
 
 ## Result UX
 
@@ -176,6 +181,10 @@ The result screen is the most important screen.
 It must feel like an architecture recommendation memo.
 
 It must not feel like a quiz result.
+
+The executive summary should include **Recommendation**, **Reason**, **Main validation**, and **Signal quality** (High, Medium, or Low). If signal quality is Low, include the low-signal note from the content model (do not call it “confidence”).
+
+Add a short **What would change this recommendation?** section to improve neutrality and practical next steps.
 
 Required result disclaimer:
 

@@ -93,6 +93,11 @@ export type AnswerOption = {
   label: string;
   description?: string;
   score: Signal;
+  fitDirection:
+    | "business_process"
+    | "technical_platform"
+    | "hybrid"
+    | "unclear";
 };
 
 export type Question = {
@@ -116,10 +121,13 @@ export type ScoreBreakdownRow = {
   explanation: string;
 };
 
+export type SignalQuality = "High" | "Medium" | "Low";
+
 export type AssessmentResult = {
   type: ResultType;
   label: "Mendix candidate" | "AWS-native candidate" | "Hybrid candidate";
   score: number;
+  signalQuality: SignalQuality;
   triggeredHardGate?: string;
   recommendation: string;
   whyItFits: string[];
@@ -128,6 +136,42 @@ export type AssessmentResult = {
   costModelImplication: string;
   breakdown: ScoreBreakdownRow[];
 };
+```
+
+## Unclear answers ("Not clear yet")
+
+Every question includes an answer labelled:
+
+```txt
+Not clear yet
+```
+
+With:
+
+```txt
+score = 0
+weight = same as the question
+fitDirection = unclear
+```
+
+This option does not push the recommendation toward Mendix, AWS-native, or hybrid by itself.
+
+## Signal quality
+
+Compute signal quality from the count of "Not clear yet" selections:
+
+```txt
+0–1 unclear answers => High
+2–3 unclear answers => Medium
+4 or more unclear answers => Low
+```
+
+Show **Signal quality** (High / Medium / Low) in the result executive summary. Do not call this “confidence” and do not use percentages.
+
+When signal quality is Low, show:
+
+```txt
+Several inputs are not clear yet. Treat this recommendation as an early direction, not a decision-ready conclusion.
 ```
 
 ## Questions
@@ -146,6 +190,12 @@ Question:
 What type of solution is this?
 ```
 
+Helper (shown as description copy):
+
+```txt
+Frame the workload before scoring anything else. The shape of the solution drives most of the platform fit.
+```
+
 Weight:
 
 ```txt
@@ -156,10 +206,11 @@ Answers:
 
 | Answer id | Label | Score |
 |---|---|---:|
-| business-process-app | Business process app / workflow / case management | -2 |
-| internal-portal | Internal portal or CRUD-style business app | -1 |
-| combined-business-technical | Combination of business app and technical backend | 0 |
-| api-event-integration | API-first service, event processor, or integration layer | 2 |
+| business-workflow-case-process | A business workflow, case, approval, or process application | -2 |
+| business-portal-crud-internal | A business portal or CRUD-style internal application | -1 |
+| combined-business-screens-technical-backend | A solution with both business-facing screens and technical backend work | 0 |
+| api-event-integration-layer | An API-first service, event processor, or integration layer | 2 |
+| not-clear-yet | Not clear yet | 0 |
 
 ### 2. UI need
 
@@ -175,6 +226,12 @@ Question:
 How important is the UI?
 ```
 
+Helper:
+
+```txt
+Describe how central the user interface is to the value of the solution.
+```
+
 Weight:
 
 ```txt
@@ -185,12 +242,13 @@ Answers:
 
 | Answer id | Label | Score |
 |---|---|---:|
-| rich-business-ui | Rich business-facing UI is central | -2 |
-| basic-ui | Basic UI is needed | -1 |
-| ui-not-differentiating | UI is useful but not differentiating | 0 |
-| no-meaningful-ui | No meaningful UI is needed | 2 |
+| ui-central-to-value | The UI is central to the value of the solution | -2 |
+| ui-needed-for-business-process | The UI is needed for users to complete a business process | -1 |
+| ui-useful-not-main-value | The UI is useful, but not the main value driver | 0 |
+| no-meaningful-user-facing-ui | There is no meaningful user-facing UI | 2 |
+| not-clear-yet | Not clear yet | 0 |
 
-### 3. Business logic
+### 3. Logic complexity
 
 Question id:
 
@@ -201,7 +259,13 @@ business-logic
 Question:
 
 ```txt
-How complex is the business logic?
+How complex is the logic?
+```
+
+Helper:
+
+```txt
+Separate business-process rules from technical branching, orchestration, and custom engineering logic.
 ```
 
 Weight:
@@ -214,10 +278,11 @@ Answers:
 
 | Answer id | Label | Score |
 |---|---|---:|
-| simple-process-rules | Simple process rules | -2 |
-| moderate-business-rules | Moderate business rules | -1 |
-| mixed-business-technical-rules | Mixed business and technical rules | 0 |
-| complex-custom-logic | Complex custom logic or technical branching | 2 |
+| simple-process-validation-rules | Mostly simple process or validation rules | -2 |
+| moderate-rules-stakeholder-review | Moderate business rules that business stakeholders can review | -1 |
+| mix-business-technical-rules | A mix of business rules and technical rules | 0 |
+| complex-custom-orchestration-branching | Complex custom logic, orchestration, or technical branching | 2 |
+| not-clear-yet | Not clear yet | 0 |
 
 ### 4. Data or event volume
 
@@ -233,6 +298,12 @@ Question:
 What is the expected data or event volume?
 ```
 
+Helper:
+
+```txt
+Describe volume shape and predictability rather than platform preference.
+```
+
 Weight:
 
 ```txt
@@ -243,10 +314,11 @@ Answers:
 
 | Answer id | Label | Score |
 |---|---|---:|
-| low-predictable | Low and predictable | -2 |
-| medium-steady | Medium and steady | -1 |
-| high-predictable | High but predictable | 1 |
-| high-spiky | High volume with clear peaks or spikes | 2 |
+| low-volume-predictable | Low volume and predictable usage | -2 |
+| medium-volume-steady | Medium volume and mostly steady usage | -1 |
+| high-volume-mostly-predictable | High volume, but mostly predictable | 1 |
+| high-volume-peaks-spikes | High volume with clear peaks or spikes | 2 |
+| not-clear-yet | Not clear yet | 0 |
 
 ### 5. Performance or latency
 
@@ -262,6 +334,12 @@ Question:
 How strict are performance or latency requirements?
 ```
 
+Helper:
+
+```txt
+Describe the runtime requirement the solution must meet in production.
+```
+
 Weight:
 
 ```txt
@@ -272,10 +350,11 @@ Answers:
 
 | Answer id | Label | Score |
 |---|---|---:|
-| normal-enterprise-performance | Normal enterprise app performance is enough | -2 |
-| some-performance-expectations | Some performance expectations | -1 |
-| performance-manageable | Performance matters but is manageable | 1 |
-| performance-essential | Performance is essential | 2 |
+| normal-enterprise-app-performance | Normal enterprise application performance is sufficient | -2 |
+| some-performance-no-strict-latency | Some performance expectations, but no strict latency target | -1 |
+| performance-designed-explicitly | Performance matters and should be designed explicitly | 1 |
+| performance-latency-critical | Performance or latency is critical to the solution | 2 |
+| not-clear-yet | Not clear yet | 0 |
 
 ### 6. Integration complexity
 
@@ -291,6 +370,12 @@ Question:
 How complex are the integrations?
 ```
 
+Helper:
+
+```txt
+Describe the number and nature of system interactions, not the preferred implementation style.
+```
+
 Weight:
 
 ```txt
@@ -302,11 +387,12 @@ Answers:
 | Answer id | Label | Score |
 |---|---|---:|
 | few-standard-integrations | Few standard integrations | -2 |
-| some-standard-integrations | Some standard integrations | -1 |
-| several-integrations | Several integrations with some orchestration | 1 |
-| many-event-api-orchestration | Many integrations, event flows, retries, APIs, or orchestration | 2 |
+| some-standard-limited-orchestration | Some standard integrations with limited orchestration | -1 |
+| several-integrations-orchestration-sequencing | Several integrations with some orchestration or sequencing | 1 |
+| many-integrations-event-flows-retries-apis | Many integrations, event flows, retries, APIs, or orchestration concerns | 2 |
+| not-clear-yet | Not clear yet | 0 |
 
-### 7. Criticality
+### 7. Operational criticality
 
 Question id:
 
@@ -317,7 +403,13 @@ criticality
 Question:
 
 ```txt
-How business-critical is the solution?
+How operationally critical is the solution?
+```
+
+Helper:
+
+```txt
+Describe the operational risk if the solution is unavailable, slow, or incorrect.
 ```
 
 Weight:
@@ -330,12 +422,13 @@ Answers:
 
 | Answer id | Label | Score |
 |---|---|---:|
-| supporting-process | Supporting process | -1 |
-| important-internal-app | Important internal app | 0 |
-| business-critical | Business-critical | 1 |
-| mission-critical | Mission-critical or 24/7 operationally sensitive | 2 |
+| supporting-process-limited-impact | Supporting process with limited operational impact | -1 |
+| important-internal-application | Important internal application | 0 |
+| business-critical-solution | Business-critical solution | 1 |
+| mission-critical-247-sensitive | Mission-critical or 24/7 operationally sensitive solution | 2 |
+| not-clear-yet | Not clear yet | 0 |
 
-### 8. Speed vs technical flexibility
+### 8. Delivery and change pattern
 
 Question id:
 
@@ -346,7 +439,13 @@ speed-vs-flexibility
 Question:
 
 ```txt
-What matters more: speed or technical flexibility?
+What delivery and change pattern is expected?
+```
+
+Helper:
+
+```txt
+Describe how the solution is likely to change after the first release.
 ```
 
 Weight:
@@ -359,12 +458,13 @@ Answers:
 
 | Answer id | Label | Score |
 |---|---|---:|
-| speed-dominant | Fast delivery is the dominant concern | -2 |
-| speed-over-flexibility | Speed matters more than technical flexibility | -1 |
-| balanced | Balanced | 0 |
-| flexibility-essential | Long-term technical flexibility is essential | 2 |
+| frequent-business-process-changes | Frequent business-process changes are expected | -2 |
+| fast-initial-delivery-over-control | Fast initial delivery matters more than deep technical control | -1 |
+| speed-and-flexibility-both-matter | Speed and technical flexibility both matter | 0 |
+| long-term-technical-flexibility-important | Long-term technical flexibility and engineered control are important | 2 |
+| not-clear-yet | Not clear yet | 0 |
 
-### 9. Team capability
+### 9. Delivery capability
 
 Question id:
 
@@ -375,7 +475,13 @@ team-capability
 Question:
 
 ```txt
-What capability is strongest in the domain or team?
+Which delivery capability is available for this work?
+```
+
+Helper:
+
+```txt
+Describe the capability that can realistically build, run, and change this solution in the domain.
 ```
 
 Weight:
@@ -388,12 +494,13 @@ Answers:
 
 | Answer id | Label | Score |
 |---|---|---:|
-| strong-mendix | Strong Mendix capability | -2 |
-| some-mendix | Some Mendix capability | -1 |
-| mixed-unclear | Mixed or unclear capability | 0 |
-| strong-aws-native | Strong AWS-native engineering capability | 2 |
+| strong-mendix-capability-available | Strong Mendix capability is available | -2 |
+| some-mendix-capability-available | Some Mendix capability is available | -1 |
+| capability-mixed-not-assigned | Capability is mixed or not yet assigned | 0 |
+| strong-aws-native-capability-available | Strong AWS-native engineering capability is available | 2 |
+| not-clear-yet | Not clear yet | 0 |
 
-### 10. Runtime cost elasticity
+### 10. Runtime demand variability
 
 Question id:
 
@@ -404,7 +511,13 @@ runtime-cost-elasticity
 Question:
 
 ```txt
-How important is runtime cost elasticity?
+How variable is expected runtime demand?
+```
+
+Helper:
+
+```txt
+Describe whether usage is steady or elastic rather than whether one platform is cheaper.
 ```
 
 Weight:
@@ -417,12 +530,13 @@ Answers:
 
 | Answer id | Label | Score |
 |---|---|---:|
-| not-important | Not very important | -1 |
-| somewhat-important | Somewhat important | 0 |
-| important | Important | 1 |
-| very-important-spiky | Very important due to high or spiky usage | 2 |
+| demand-steady-modest | Demand is expected to be steady and modest | -1 |
+| demand-somewhat-variable-manageable | Demand is somewhat variable, but manageable | 0 |
+| demand-may-grow-or-vary-materially | Demand may grow or vary materially over time | 1 |
+| demand-high-spiky-usage-dependent | Demand is high, spiky, or strongly usage-dependent | 2 |
+| not-clear-yet | Not clear yet | 0 |
 
-### 11. Lock-in tolerance
+### 11. Custom control over runtime and architecture
 
 Question id:
 
@@ -433,7 +547,13 @@ lock-in
 Question:
 
 ```txt
-How much platform lock-in is acceptable?
+How much custom control is needed over the runtime and architecture?
+```
+
+Helper:
+
+```txt
+Describe the need for control, portability, and engineering flexibility.
 ```
 
 Weight:
@@ -446,10 +566,11 @@ Answers:
 
 | Answer id | Label | Score |
 |---|---|---:|
-| platform-standardisation-acceptable | Platform standardisation is acceptable | -2 |
-| some-lock-in-acceptable | Some lock-in is acceptable | -1 |
-| neutral | Neutral | 0 |
-| custom-control-portability | Custom control and portability matter | 2 |
+| standard-platform-conventions-acceptable | Standard platform conventions are acceptable | -2 |
+| some-platform-constraints-acceptable | Some platform constraints are acceptable | -1 |
+| no-strong-preference-yet | No strong preference yet | 0 |
+| custom-control-portability-flexibility-matters | Custom control, portability, or runtime flexibility matters | 2 |
+| not-clear-yet | Not clear yet | 0 |
 
 ### 12. Observability and testability
 
@@ -465,6 +586,12 @@ Question:
 How deep do observability and testability need to be?
 ```
 
+Helper:
+
+```txt
+Describe the level of production evidence, tracing, testing, and operational control required.
+```
+
 Weight:
 
 ```txt
@@ -475,10 +602,11 @@ Answers:
 
 | Answer id | Label | Score |
 |---|---|---:|
-| standard-platform-monitoring | Standard platform monitoring is enough | -2 |
-| basic-operational-insight | Basic operational insight is enough | -1 |
-| moderate-observability-testing | Moderate observability and testing needed | 1 |
-| deep-observability-slo | Deep logs, metrics, traces, alerts, automated tests, and SLOs needed | 2 |
+| standard-platform-monitoring-enough | Standard platform monitoring is enough | -2 |
+| basic-operational-insight-enough | Basic operational insight is enough | -1 |
+| moderate-observability-automated-testing | Moderate observability and automated testing are needed | 1 |
+| deep-logs-metrics-traces-alerts-tests-slos | Deep logs, metrics, traces, alerts, automated tests, and SLOs are needed | 2 |
+| not-clear-yet | Not clear yet | 0 |
 
 ## Hard gates
 
@@ -489,9 +617,9 @@ Apply hard gates after the weighted score has been calculated.
 If all of these are true:
 
 ```txt
-ui-need = no-meaningful-ui
-volume = high-spiky
-performance = performance-essential
+ui-need = no-meaningful-user-facing-ui
+volume = high-volume-peaks-spikes
+performance = performance-latency-critical
 ```
 
 Then force:
@@ -503,7 +631,13 @@ AWS-native candidate
 Hard gate reason:
 
 ```txt
-No meaningful UI, high spiky volume, and essential performance create a strong AWS-native signal.
+No meaningful user-facing UI, high volume with spikes, and critical performance or latency create a strong AWS-native signal.
+```
+
+User-facing explanation:
+
+```txt
+This case strongly matches a high-volume, performance-sensitive technical workload pattern, which creates a strong AWS-native signal.
 ```
 
 ### Hard gate 2 — Mendix candidate
@@ -511,9 +645,9 @@ No meaningful UI, high spiky volume, and essential performance create a strong A
 If all of these are true:
 
 ```txt
-solution-type = business-process-app
-ui-need = rich-business-ui
-volume = low-predictable OR medium-steady
+solution-type = business-workflow-case-process
+ui-need = ui-central-to-value
+volume = low-volume-predictable OR medium-volume-steady
 ```
 
 Then force:
@@ -525,7 +659,13 @@ Mendix candidate
 Hard gate reason:
 
 ```txt
-A rich business-facing process app with low or medium predictable volume creates a strong Mendix signal.
+A business workflow-style application with UI-central value and low or medium steady volume creates a strong Mendix signal.
+```
+
+User-facing explanation:
+
+```txt
+This case strongly matches a business-facing process-app pattern, which creates a strong Mendix signal.
 ```
 
 ### Hard gate 3 — Hybrid candidate
@@ -533,14 +673,14 @@ A rich business-facing process app with low or medium predictable volume creates
 If this is true:
 
 ```txt
-solution-type = combined-business-technical
+solution-type = combined-business-screens-technical-backend
 ```
 
 And at least one of these is true:
 
 ```txt
-volume = high-spiky
-integration-complexity = many-event-api-orchestration
+volume = high-volume-peaks-spikes
+integration-complexity = many-integrations-event-flows-retries-apis
 ```
 
 Then force:
@@ -552,7 +692,13 @@ Hybrid candidate
 Hard gate reason:
 
 ```txt
-The workload combines business-facing app needs with high-volume or integration-heavy technical needs, so the architecture boundary should be explicit.
+Combined business-facing and technical backend needs with high volume or integration-heavy interactions create a strong hybrid signal.
+```
+
+User-facing explanation:
+
+```txt
+This case strongly combines business-facing process needs with technical backend demands, which creates a strong hybrid signal.
 ```
 
 ## Result content
@@ -771,25 +917,30 @@ For a workload profile with 2 million events per day, clear peaks, business-crit
 
 ## Score breakdown explanations
 
-Use short explanations based on selected answer signals.
-
-Signal labels:
+Summary framing:
 
 ```txt
--2 => Strong Mendix signal
--1 => Lean Mendix
- 0 => Neutral or mixed
-+1 => Lean AWS-native
-+2 => Strong AWS-native signal
+Each answer contributes to a workload-fit direction. Business/process signals usually support Mendix. Technical/platform signals usually support AWS-native engineering. Mixed or unclear signals keep the result closer to hybrid.
 ```
+
+In expanded scoring details, label answer direction as:
+
+```txt
+Business/process signal
+Technical/platform signal
+Hybrid or mixed signal
+Unclear signal
+```
+
+Avoid framing Mendix as “negative” or AWS-native as “positive”, and avoid “good score” / “bad score” language.
 
 Example breakdown row:
 
 ```txt
 Axis: Data or event volume
 Selected answer: High volume with clear peaks or spikes
-Signal: Strong AWS-native signal
-Explanation: Spiky event volume usually benefits from elastic, usage-based runtime design and explicit event-processing architecture.
+Signal direction: Technical/platform signal
+Explanation: Describe why this axis reads as technical/platform-oriented for this workload.
 ```
 
 ## Content anti-patterns
