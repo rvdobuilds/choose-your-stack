@@ -10,7 +10,7 @@ type Props = {
 export function QuestionCard({ question, selectedAnswerId, onSelect }: Props) {
   const groupName = `q-${question.id}`;
   return (
-    <fieldset className="cys-card px-5 py-6 sm:px-8 sm:py-8">
+    <fieldset className="cys-card px-4 py-5 sm:px-8 sm:py-8">
       <legend className="sr-only">{question.title}</legend>
 
       <div className="flex items-baseline justify-between gap-4">
@@ -22,7 +22,7 @@ export function QuestionCard({ question, selectedAnswerId, onSelect }: Props) {
         </p>
       </div>
 
-      <h3 className="cys-text mt-4 text-[1.25rem] font-medium leading-snug sm:text-[1.4rem]">
+      <h3 className="cys-text mt-3 text-[1.2rem] font-medium leading-snug sm:mt-4 sm:text-[1.4rem]">
         {question.title}
       </h3>
       {question.description ? (
@@ -34,7 +34,7 @@ export function QuestionCard({ question, selectedAnswerId, onSelect }: Props) {
       <div
         role="radiogroup"
         aria-label={question.title}
-        className="mt-6 flex flex-col gap-3"
+        className="mt-5 flex flex-col gap-2.5 sm:mt-6 sm:gap-3"
       >
         {question.answers.map((answer) => {
           const selected = selectedAnswerId === answer.id;
@@ -44,7 +44,7 @@ export function QuestionCard({ question, selectedAnswerId, onSelect }: Props) {
               key={answer.id}
               htmlFor={inputId}
               data-selected={selected}
-              className="cys-answer flex min-h-[64px] cursor-pointer items-start gap-4 px-5 py-4 sm:items-center"
+              className="cys-answer flex min-h-[56px] cursor-pointer items-start gap-3 px-4 py-3 sm:min-h-[64px] sm:items-center sm:gap-4 sm:px-5 sm:py-4"
             >
               <input
                 id={inputId}
