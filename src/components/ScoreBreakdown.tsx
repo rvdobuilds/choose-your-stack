@@ -13,15 +13,8 @@ export function ScoreBreakdown({ result }: Props) {
 
   if (!result) return null;
 
-  const scoreText =
-    result.score > 0 ? `+${result.score}` : `${result.score}`;
-  const hardGateLine = result.hardGateApplied
-    ? `Hard gate applied — ${result.hardGateReason}`
-    : "No hard gate triggered.";
-
   return (
     <section
-      id="score-breakdown"
       aria-labelledby="score-breakdown-heading"
       className="mt-10 sm:mt-16"
     >
@@ -31,7 +24,7 @@ export function ScoreBreakdown({ result }: Props) {
           id="score-breakdown-heading"
           className="cys-text mt-2 text-[1.4rem] font-semibold leading-tight sm:text-[1.8rem]"
         >
-          How the score was built
+          How the recommendation was built
         </h2>
         <p className="cys-text-muted mt-2 max-w-2xl text-sm leading-6 sm:mt-3 sm:text-base sm:leading-7">
           A compact summary first. Open the details to see how each axis
@@ -42,29 +35,34 @@ export function ScoreBreakdown({ result }: Props) {
       <div className="cys-card-muted mt-5 px-5 py-5 sm:mt-6 sm:px-6 sm:py-6">
         <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
           <div>
-            <p className="cys-eyebrow">Total weighted score</p>
-            <p className="cys-text mt-1 text-2xl font-semibold tabular-nums sm:text-3xl">
-              {scoreText}
-            </p>
-          </div>
-          <div>
-            <p className="cys-eyebrow">Final recommendation</p>
+            <p className="cys-eyebrow">Primary fit</p>
             <p className="cys-text-soft mt-1 text-sm font-medium">
               {result.label}
             </p>
           </div>
           <div>
-            <p className="cys-eyebrow">Hard gate</p>
+            <p className="cys-eyebrow">Recommendation strength</p>
+            <p className="cys-text-soft mt-1 text-sm font-medium">
+              {result.recommendationStrength}
+            </p>
+          </div>
+          <div>
+            <p className="cys-eyebrow">Rule-based override</p>
             <p className="cys-text-soft mt-1 text-sm">
-              {result.hardGateApplied
-                ? "Hard gate applied"
-                : "No hard gate triggered"}
+              {result.hardGateApplied ? "Yes" : "No"}
             </p>
           </div>
         </div>
-        <p className="cys-text-subtle mt-4 text-sm leading-6">
-          {hardGateLine}
-        </p>
+        {result.hardGateApplied && result.hardGateExplanation && (
+          <p className="cys-text-subtle mt-4 text-sm leading-6">
+            This recommendation is driven by a decisive workload signal. {result.hardGateExplanation}
+          </p>
+        )}
+        {!result.hardGateApplied && (
+          <p className="cys-text-subtle mt-4 text-sm leading-6">
+            No rule-based override triggered. Result derived from the weighted workload signals.
+          </p>
+        )}
 
         <div className="mt-5">
           <button
@@ -79,14 +77,17 @@ export function ScoreBreakdown({ result }: Props) {
         </div>
       </div>
 
-      {open ? (
+      {open && (
         <div id={detailsId} className="cys-card mt-4 overflow-hidden">
+          <p className="cys-text-subtle px-5 py-3 text-xs leading-5 sm:px-6">
+            Each answer contributes to one of three workload-fit directions: Mendix, AWS-native, or hybrid. The detailed index is used internally to place the workload on the Mendix-to-AWS-native fit scale.
+          </p>
           <div className="hidden grid-cols-[1.4fr_1.4fr_minmax(7rem,0.7fr)_minmax(4rem,0.4fr)_minmax(5rem,0.5fr)] gap-4 px-6 py-3 text-[0.7rem] uppercase tracking-[0.18em] cys-text-faint sm:grid">
             <span>Axis</span>
             <span>Selected answer</span>
             <span>Signal</span>
             <span className="text-right">Weight</span>
-            <span className="text-right">Weighted</span>
+            <span className="text-right">Internal fit index</span>
           </div>
           <ul>
             {result.breakdown.map((row, idx) => (
@@ -116,7 +117,7 @@ export function ScoreBreakdown({ result }: Props) {
                 </p>
                 <p className="cys-text mt-2 text-sm font-medium sm:mt-0 sm:text-right tabular-nums">
                   <span className="cys-text-subtle font-normal sm:hidden">
-                    Weighted{" "}
+                    Index{" "}
                   </span>
                   {row.weightedScore > 0
                     ? `+${row.weightedScore}`
@@ -126,16 +127,16 @@ export function ScoreBreakdown({ result }: Props) {
             ))}
             <li className="border-t cys-border-soft px-5 py-4 sm:grid sm:grid-cols-[1.4fr_1.4fr_minmax(7rem,0.7fr)_minmax(4rem,0.4fr)_minmax(5rem,0.5fr)] sm:items-center sm:gap-4 sm:px-6 sm:py-4">
               <p className="cys-text text-sm font-semibold sm:col-span-3">
-                Total weighted score
+                Total internal fit index
               </p>
               <span className="hidden sm:block" />
               <p className="cys-text mt-2 text-base font-semibold sm:mt-0 sm:text-right tabular-nums">
-                {scoreText}
+                {result.score > 0 ? `+${result.score}` : result.score}
               </p>
             </li>
           </ul>
         </div>
-      ) : null}
+      )}
     </section>
   );
 }

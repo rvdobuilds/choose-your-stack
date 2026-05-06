@@ -17,9 +17,6 @@ export function QuestionCard({ question, selectedAnswerId, onSelect }: Props) {
         <p className="cys-eyebrow">
           Question {question.number} of {TOTAL_QUESTIONS}
         </p>
-        <p className="cys-text-faint text-[0.7rem] uppercase tracking-[0.18em]">
-          Weight {question.weight}
-        </p>
       </div>
 
       <h3 className="cys-text mt-3 text-[1.2rem] font-medium leading-snug sm:mt-4 sm:text-[1.4rem]">

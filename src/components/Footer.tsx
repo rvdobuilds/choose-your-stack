@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function Footer() {
   return (
     <footer className="mt-20 border-t cys-border-soft py-10 sm:mt-24">
@@ -13,18 +15,18 @@ export function Footer() {
           aria-label="Footer"
           className="flex flex-wrap items-center gap-4 text-sm"
         >
-          <a href="#top" className="cys-link">
+          <Link href="/" className="cys-link">
             Start
-          </a>
-          <a href="#framework" className="cys-link">
+          </Link>
+          <Link href="/framework" className="cys-link">
             Framework
-          </a>
-          <a href="#result" className="cys-link">
+          </Link>
+          <Link href="/result" className="cys-link">
             Result
-          </a>
-          <a href="#cost-model" className="cys-link">
+          </Link>
+          <Link href="/cost-model" className="cys-link">
             Cost model
-          </a>
+          </Link>
         </nav>
       </div>
     </footer>

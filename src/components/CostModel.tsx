@@ -44,9 +44,7 @@ const HYBRID_BOUNDARY =
 export function CostModel() {
   return (
     <section
-      id="cost-model"
       aria-labelledby="cost-model-heading"
-      className="mt-14 scroll-mt-20 sm:mt-24"
     >
       <header>
         <p className="cys-eyebrow">Cost model</p>
