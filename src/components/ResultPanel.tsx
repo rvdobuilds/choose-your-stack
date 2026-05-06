@@ -24,6 +24,11 @@ export function ResultPanel({ result, answeredCount }: Props) {
         >
           Workload-fit recommendation
         </h2>
+        {result ? (
+          <p className="cys-text-faint mt-2 text-xs leading-5">
+            Saved locally in this browser.
+          </p>
+        ) : null}
       </header>
 
       <div className="mt-5 sm:mt-6">

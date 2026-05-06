@@ -1,11 +1,20 @@
+"use client";
+
 import Link from "next/link";
 import {
   HERO_HEADLINE,
   HERO_SUBLINE,
   RESULT_DISCLAIMER,
 } from "@/lib/result-copy";
+import { useAssessment } from "@/lib/assessment-context";
+import { isComplete } from "@/lib/scoring";
 
 export function HeroPanel() {
+  const { answers, answeredCount, storageHydrated } = useAssessment();
+  const assessmentComplete = storageHydrated && isComplete(answers);
+  const hasPartialProgress =
+    storageHydrated && !assessmentComplete && answeredCount > 0;
+
   return (
     <section className="pt-4 sm:pt-14">
       <div className="cys-card-elevated px-4 py-5 sm:px-12 sm:py-14">
@@ -31,6 +40,27 @@ export function HeroPanel() {
             View cost model
           </Link>
         </div>
+
+        {storageHydrated && (hasPartialProgress || assessmentComplete) ? (
+          <div className="mt-3 flex flex-col gap-2 sm:mt-4 sm:flex-row sm:flex-wrap sm:gap-3">
+            {hasPartialProgress ? (
+              <Link
+                href="/framework"
+                className="cys-button-secondary cys-text-muted inline-flex h-10 min-w-[11rem] items-center justify-center rounded-full px-5 text-xs font-medium sm:h-11 sm:text-sm"
+              >
+                Continue assessment
+              </Link>
+            ) : null}
+            {assessmentComplete ? (
+              <Link
+                href="/result"
+                className="cys-button-secondary cys-text-muted inline-flex h-10 min-w-[11rem] items-center justify-center rounded-full px-5 text-xs font-medium sm:h-11 sm:text-sm"
+              >
+                View saved result
+              </Link>
+            ) : null}
+          </div>
+        ) : null}
 
         <hr className="cys-divider mt-5 sm:mt-10" />
 
