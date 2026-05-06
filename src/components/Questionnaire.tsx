@@ -56,27 +56,18 @@ export function Questionnaire({
       aria-labelledby="framework-heading"
       className="mt-10 scroll-mt-20 sm:mt-20"
     >
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-        <div>
-          <p className="cys-eyebrow">Framework</p>
-          <h2
-            id="framework-heading"
-            className="cys-text mt-2 text-[1.4rem] font-semibold leading-tight sm:text-[2rem]"
-          >
-            Workload-fit assessment
-          </h2>
-          <p className="cys-text-muted mt-2 max-w-2xl text-sm leading-6 sm:mt-3 sm:text-base sm:leading-7">
-            Answer twelve workload, capability, and cost-model questions. One
-            at a time. Scoring is deterministic and shown alongside the result.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={handleReset}
-          className="cys-button-ghost self-start rounded-full px-3 py-2 text-sm sm:self-auto"
+      <header>
+        <p className="cys-eyebrow">Framework</p>
+        <h2
+          id="framework-heading"
+          className="cys-text mt-2 text-[1.4rem] font-semibold leading-tight sm:text-[2rem]"
         >
-          Start over
-        </button>
+          Workload-fit assessment
+        </h2>
+        <p className="cys-text-muted mt-2 max-w-2xl text-sm leading-6 sm:mt-3 sm:text-base sm:leading-7">
+          Answer twelve workload, capability, and cost-model questions. One
+          at a time. Scoring is deterministic and shown alongside the result.
+        </p>
       </header>
 
       <div className="mt-5 sm:mt-6">
@@ -97,12 +88,23 @@ export function Questionnaire({
         >
           <div className="cys-progress-fill" style={{ width: `${progress}%` }} />
         </div>
-        {answeredCount < TOTAL_QUESTIONS ? (
-          <p className="cys-text-faint mt-3 text-xs leading-5">
-            Answer all questions to generate a platform-direction
-            recommendation.
-          </p>
-        ) : null}
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+          {answeredCount < TOTAL_QUESTIONS ? (
+            <p className="cys-text-faint text-xs leading-5">
+              Answer all questions to generate a platform-direction
+              recommendation.
+            </p>
+          ) : (
+            <span aria-hidden />
+          )}
+          <button
+            type="button"
+            onClick={handleReset}
+            className="cys-text-faint -mx-1 rounded-md px-1 py-1 text-xs underline-offset-4 hover:underline focus-visible:underline"
+          >
+            Start over
+          </button>
+        </div>
       </div>
 
       <div className="mt-5 sm:mt-6">

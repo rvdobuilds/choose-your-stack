@@ -78,7 +78,7 @@ export function CostModel() {
         />
       </div>
 
-      <div className="cys-card-elevated mt-5 px-5 py-6 sm:mt-6 sm:px-10 sm:py-8">
+      <div className="cys-card-elevated mt-5 px-4 py-5 sm:mt-6 sm:px-10 sm:py-8">
         <p className="cys-eyebrow">Key question</p>
         <p className="cys-text mt-3 max-w-3xl text-base leading-7 sm:text-[1.05rem] sm:leading-8">
           {KEY_QUESTION}
@@ -128,7 +128,7 @@ function SummaryCard({
   summary: string;
 }) {
   return (
-    <article className="cys-card px-4 py-4 sm:px-5 sm:py-5">
+    <article className="cys-card px-3.5 py-3.5 sm:px-5 sm:py-5">
       <h3 className="cys-text text-base font-semibold sm:text-lg">{title}</h3>
       <p className="cys-text-subtle mt-2 text-[0.85rem] leading-6">
         {summary}
@@ -147,7 +147,7 @@ function Disclosure({
   const id = useId();
   const [open, setOpen] = useState(false);
   return (
-    <div className="cys-card-muted px-4 py-3 sm:px-5 sm:py-4">
+    <div className="cys-card-muted px-3.5 py-3 sm:px-5 sm:py-4">
       <button
         type="button"
         aria-expanded={open}

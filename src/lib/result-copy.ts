@@ -26,6 +26,30 @@ export type ResultContent = {
   costModelImplication: string;
 };
 
+export const EXECUTIVE_SUMMARY: Record<
+  ResultType,
+  { reason: string; validation: string }
+> = {
+  mendix: {
+    reason:
+      "Business/process workload with UI or workflow importance.",
+    validation:
+      "Volume, integrations, performance, and operational risk.",
+  },
+  "aws-native": {
+    reason:
+      "Technical, event-driven, integration-heavy, or performance-sensitive workload.",
+    validation:
+      "Build effort, team capability, support model, and business UI needs.",
+  },
+  hybrid: {
+    reason:
+      "Business-facing process needs and technical backend needs both matter.",
+    validation:
+      "Architecture boundary, ownership split, integrations, and runtime cost model.",
+  },
+};
+
 export const RESULT_CONTENT: Record<ResultType, ResultContent> = {
   mendix: {
     recommendation:
