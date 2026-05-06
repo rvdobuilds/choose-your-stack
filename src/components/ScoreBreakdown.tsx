@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import type { AssessmentResult } from "@/lib/types";
+import { SCORE_BREAKDOWN_INTRO } from "@/lib/result-copy";
 
 type Props = {
   result: AssessmentResult | null;
@@ -32,12 +33,18 @@ export function ScoreBreakdown({ result }: Props) {
         </p>
       </header>
 
-      <div className="cys-card-muted mt-5 px-5 py-5 sm:mt-6 sm:px-6 sm:py-6">
+        <div className="cys-card-muted mt-5 px-5 py-5 sm:mt-6 sm:px-6 sm:py-6">
         <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
           <div>
             <p className="cys-eyebrow">Primary fit</p>
             <p className="cys-text-soft mt-1 text-sm font-medium">
               {result.label}
+            </p>
+          </div>
+          <div>
+            <p className="cys-eyebrow">Signal quality</p>
+            <p className="cys-text-soft mt-1 text-sm font-medium">
+              {result.signalQuality}
             </p>
           </div>
           <div>
@@ -80,20 +87,20 @@ export function ScoreBreakdown({ result }: Props) {
       {open && (
         <div id={detailsId} className="cys-card mt-4 overflow-hidden">
           <p className="cys-text-subtle px-5 py-3 text-xs leading-5 sm:px-6">
-            Each answer contributes to one of three workload-fit directions: Mendix, AWS-native, or hybrid. The detailed index is used internally to place the workload on the Mendix-to-AWS-native fit scale.
+            {SCORE_BREAKDOWN_INTRO}
           </p>
-          <div className="hidden grid-cols-[1.4fr_1.4fr_minmax(7rem,0.7fr)_minmax(4rem,0.4fr)_minmax(5rem,0.5fr)] gap-4 px-6 py-3 text-[0.7rem] uppercase tracking-[0.18em] cys-text-faint sm:grid">
+          <div className="hidden grid-cols-[1.4fr_1.4fr_minmax(8rem,0.85fr)_minmax(4rem,0.4fr)_minmax(6rem,0.55fr)] gap-4 px-6 py-3 text-[0.7rem] uppercase tracking-[0.18em] cys-text-faint sm:grid">
             <span>Axis</span>
             <span>Selected answer</span>
-            <span>Signal</span>
+            <span>Signal direction</span>
             <span className="text-right">Weight</span>
-            <span className="text-right">Internal fit index</span>
+            <span className="text-right">Weighted contribution</span>
           </div>
           <ul>
             {result.breakdown.map((row, idx) => (
               <li
                 key={row.questionId}
-                className={`px-5 py-4 sm:grid sm:grid-cols-[1.4fr_1.4fr_minmax(7rem,0.7fr)_minmax(4rem,0.4fr)_minmax(5rem,0.5fr)] sm:items-center sm:gap-4 sm:px-6 sm:py-4 ${
+                className={`px-5 py-4 sm:grid sm:grid-cols-[1.4fr_1.4fr_minmax(8rem,0.85fr)_minmax(4rem,0.4fr)_minmax(6rem,0.55fr)] sm:items-center sm:gap-4 sm:px-6 sm:py-4 ${
                   idx === 0 ? "" : "border-t cys-border-soft"
                 }`}
               >
@@ -117,7 +124,7 @@ export function ScoreBreakdown({ result }: Props) {
                 </p>
                 <p className="cys-text mt-2 text-sm font-medium sm:mt-0 sm:text-right tabular-nums">
                   <span className="cys-text-subtle font-normal sm:hidden">
-                    Index{" "}
+                    Contribution{" "}
                   </span>
                   {row.weightedScore > 0
                     ? `+${row.weightedScore}`
@@ -125,9 +132,9 @@ export function ScoreBreakdown({ result }: Props) {
                 </p>
               </li>
             ))}
-            <li className="border-t cys-border-soft px-5 py-4 sm:grid sm:grid-cols-[1.4fr_1.4fr_minmax(7rem,0.7fr)_minmax(4rem,0.4fr)_minmax(5rem,0.5fr)] sm:items-center sm:gap-4 sm:px-6 sm:py-4">
+            <li className="border-t cys-border-soft px-5 py-4 sm:grid sm:grid-cols-[1.4fr_1.4fr_minmax(8rem,0.85fr)_minmax(4rem,0.4fr)_minmax(6rem,0.55fr)] sm:items-center sm:gap-4 sm:px-6 sm:py-4">
               <p className="cys-text text-sm font-semibold sm:col-span-3">
-                Total internal fit index
+                Total weighted contribution
               </p>
               <span className="hidden sm:block" />
               <p className="cys-text mt-2 text-base font-semibold sm:mt-0 sm:text-right tabular-nums">

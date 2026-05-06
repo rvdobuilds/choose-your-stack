@@ -1,4 +1,4 @@
-import type { ResultLabel, ResultType, Signal } from "./types";
+import type { ResultLabel, ResultType } from "./types";
 
 export const RESULT_DISCLAIMER =
   "This is not a platform verdict. It is a workload-fit recommendation based on the answers provided.";
@@ -10,6 +10,27 @@ export const HERO_SUBLINE =
   "A practical decision tool for choosing between Mendix, AWS-native engineering, or a hybrid architecture.";
 
 export const COST_MODEL_TITLE = "Runtime cost model";
+
+export const LOW_SIGNAL_QUALITY_NOTE =
+  "Several inputs are not clear yet. Treat this recommendation as an early direction, not a decision-ready conclusion.";
+
+export const SCORE_BREAKDOWN_INTRO =
+  "Each answer contributes to a workload-fit direction. Business/process signals usually support Mendix. Technical/platform signals usually support AWS-native engineering. Mixed or unclear signals keep the result closer to hybrid.";
+
+export const WHAT_WOULD_CHANGE: Record<ResultType, string[]> = {
+  mendix: [
+    "AWS-native may become stronger if event volume, latency requirements, integration complexity, custom logic, or observability needs are higher than expected.",
+    "Hybrid may become stronger if the business UI remains important but technical backend demands need to be separated from the process layer.",
+  ],
+  "aws-native": [
+    "Mendix may become stronger if the workload is mainly a business workflow, the UI is central, delivery speed dominates, or Mendix capability is much stronger in the domain.",
+    "Hybrid may become stronger if a business-facing workflow or portal should be separated from the technical backend.",
+  ],
+  hybrid: [
+    "Mendix may become stronger if the technical backend is simpler than expected and most value sits in workflow, UI, and business-process delivery.",
+    "AWS-native may become stronger if the UI or process layer is thin and the real value sits in events, APIs, integrations, performance, or resilience.",
+  ],
+};
 
 export const RESULT_LABELS: Record<ResultType, ResultLabel> = {
   mendix: "Mendix candidate",
@@ -133,12 +154,4 @@ export const RESULT_CONTENT: Record<ResultType, ResultContent> = {
     costModelImplication:
       "Hybrid can align each layer with the most suitable cost model: Mendix for business-facing workflow delivery and AWS-native services for usage-based event processing, integrations, APIs, and runtime-critical behavior. Validate integration, ownership, and duplicated operational costs.",
   },
-};
-
-export const SIGNAL_LABELS: Record<Signal, string> = {
-  [-2]: "Strong Mendix signal",
-  [-1]: "Lean Mendix",
-  0: "Neutral or mixed",
-  1: "Lean AWS-native",
-  2: "Strong AWS-native signal",
 };

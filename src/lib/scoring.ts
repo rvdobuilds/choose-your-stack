@@ -1,37 +1,51 @@
 import { QUESTIONS } from "./questions";
-import {
-  RESULT_CONTENT,
-  RESULT_LABELS,
-  SIGNAL_LABELS,
-} from "./result-copy";
+import { RESULT_CONTENT, RESULT_LABELS } from "./result-copy";
 import type {
+  AnswerOption,
   AssessmentAnswers,
   AssessmentResult,
+  FitDirection,
   Question,
   RecommendationStrength,
   ResultType,
   ScoreBreakdownRow,
-  Signal,
+  SignalQuality,
 } from "./types";
 
 const MENDIX_THRESHOLD = -20;
 const AWS_THRESHOLD = 20;
 const STRONG_THRESHOLD = 40;
 
-function explainSignal(question: Question, score: Signal): string {
-  if (score <= -2) {
-    return `${question.title} suggests a strong Mendix signal for this workload.`;
+function directionLabel(fitDirection: FitDirection): string {
+  switch (fitDirection) {
+    case "business_process":
+      return "Business/process signal";
+    case "technical_platform":
+      return "Technical/platform signal";
+    case "hybrid":
+      return "Hybrid or mixed signal";
+    case "unclear":
+      return "Unclear signal";
   }
-  if (score === -1) {
-    return `${question.title} leans toward Mendix without being decisive.`;
+}
+
+function explainRow(question: Question, answer: AnswerOption): string {
+  if (answer.fitDirection === "unclear") {
+    return `${question.title} was marked as not clear yet, so it does not shift the workload-fit direction.`;
   }
-  if (score === 0) {
-    return `${question.title} is neutral or mixed and does not push the decision in either direction.`;
+  if (answer.fitDirection === "business_process") {
+    return `${question.title} reads as a business/process-oriented workload signal.`;
   }
-  if (score === 1) {
-    return `${question.title} leans toward AWS-native engineering without being decisive.`;
+  if (answer.fitDirection === "technical_platform") {
+    return `${question.title} reads as a technical/platform-oriented workload signal.`;
   }
-  return `${question.title} suggests a strong AWS-native signal for this workload.`;
+  return `${question.title} reads as a hybrid or mixed workload signal.`;
+}
+
+function signalQualityFromUnclearCount(count: number): SignalQuality {
+  if (count <= 1) return "High";
+  if (count <= 3) return "Medium";
+  return "Low";
 }
 
 function bandToType(score: number): ResultType {
@@ -40,46 +54,46 @@ function bandToType(score: number): ResultType {
   return "hybrid";
 }
 
-type HardGate =
-  | { type: ResultType; reason: string }
-  | null;
+type HardGate = { type: ResultType; reason: string } | null;
 
 function evaluateHardGates(answers: AssessmentAnswers): HardGate {
   const a = answers;
 
   const awsGate =
-    a["ui-need"] === "no-meaningful-ui" &&
-    a["volume"] === "high-spiky" &&
-    a["performance"] === "performance-essential";
+    a["ui-need"] === "no-meaningful-user-facing-ui" &&
+    a["volume"] === "high-volume-peaks-spikes" &&
+    a["performance"] === "performance-latency-critical";
   if (awsGate) {
     return {
       type: "aws-native",
       reason:
-        "No meaningful UI, high spiky volume, and essential performance create a strong AWS-native signal.",
+        "No meaningful user-facing UI, high volume with spikes, and critical performance or latency create a strong AWS-native signal.",
     };
   }
 
   const mendixGate =
-    a["solution-type"] === "business-process-app" &&
-    a["ui-need"] === "rich-business-ui" &&
-    (a["volume"] === "low-predictable" || a["volume"] === "medium-steady");
+    a["solution-type"] === "business-workflow-case-process" &&
+    a["ui-need"] === "ui-central-to-value" &&
+    (a["volume"] === "low-volume-predictable" ||
+      a["volume"] === "medium-volume-steady");
   if (mendixGate) {
     return {
       type: "mendix",
       reason:
-        "A rich business-facing process app with low or medium predictable volume creates a strong Mendix signal.",
+        "A business workflow-style application with UI-central value and low or medium steady volume creates a strong Mendix signal.",
     };
   }
 
   const hybridGate =
-    a["solution-type"] === "combined-business-technical" &&
-    (a["volume"] === "high-spiky" ||
-      a["integration-complexity"] === "many-event-api-orchestration");
+    a["solution-type"] === "combined-business-screens-technical-backend" &&
+    (a["volume"] === "high-volume-peaks-spikes" ||
+      a["integration-complexity"] ===
+        "many-integrations-event-flows-retries-apis");
   if (hybridGate) {
     return {
       type: "hybrid",
       reason:
-        "The workload combines business-facing app needs with high-volume or integration-heavy technical needs, so the architecture boundary should be explicit.",
+        "Combined business-facing and technical backend needs with high volume or integration-heavy interactions create a strong hybrid signal.",
     };
   }
 
@@ -114,22 +128,26 @@ export function isComplete(answers: AssessmentAnswers): boolean {
 export function answeredCount(answers: AssessmentAnswers): number {
   return QUESTIONS.reduce(
     (count, q) => count + (answers[q.id] ? 1 : 0),
-    0
+    0,
   );
 }
 
 export function calculateResult(
-  answers: AssessmentAnswers
+  answers: AssessmentAnswers,
 ): AssessmentResult | null {
   if (!isComplete(answers)) return null;
 
   const breakdown: ScoreBreakdownRow[] = [];
   let total = 0;
+  let unclearAnswerCount = 0;
 
   for (const question of QUESTIONS) {
     const selectedId = answers[question.id];
     const answer = question.answers.find((a) => a.id === selectedId);
     if (!answer) return null;
+    if (answer.fitDirection === "unclear") {
+      unclearAnswerCount += 1;
+    }
     const weighted = answer.score * question.weight;
     total += weighted;
     breakdown.push({
@@ -139,8 +157,8 @@ export function calculateResult(
       score: answer.score,
       weight: question.weight,
       weightedScore: weighted,
-      signalLabel: SIGNAL_LABELS[answer.score],
-      explanation: explainSignal(question, answer.score),
+      signalLabel: directionLabel(answer.fitDirection),
+      explanation: explainRow(question, answer),
     });
   }
 
@@ -150,6 +168,7 @@ export function calculateResult(
   const content = RESULT_CONTENT[finalType];
   const hardGateApplied = Boolean(gate);
   const strength = deriveStrength(finalType, Math.abs(total), hardGateApplied);
+  const signalQuality = signalQualityFromUnclearCount(unclearAnswerCount);
 
   return {
     type: finalType,
@@ -160,6 +179,8 @@ export function calculateResult(
     hardGateReason: gate?.reason,
     hardGateExplanation: gate ? HARD_GATE_EXPLANATIONS[finalType] : undefined,
     recommendationStrength: strength,
+    signalQuality,
+    unclearAnswerCount,
     recommendation: content.recommendation,
     closingNote: content.closingNote,
     whyItFits: content.whyItFits,
@@ -168,44 +189,4 @@ export function calculateResult(
     costModelImplication: content.costModelImplication,
     breakdown,
   };
-}
-
-export type LiveSignalLabel =
-  | "No signal yet"
-  | "Leaning Mendix"
-  | "Leaning AWS-native"
-  | "Mixed / hybrid signal";
-
-export function liveSignal(answers: AssessmentAnswers): {
-  total: number;
-  answered: number;
-  leaning: "Mendix" | "AWS-native" | "Hybrid" | null;
-  label: LiveSignalLabel;
-} {
-  let total = 0;
-  let answered = 0;
-  for (const question of QUESTIONS) {
-    const selectedId = answers[question.id];
-    if (!selectedId) continue;
-    const answer = question.answers.find((a) => a.id === selectedId);
-    if (!answer) continue;
-    answered += 1;
-    total += answer.score * question.weight;
-  }
-  if (answered === 0) {
-    return { total, answered, leaning: null, label: "No signal yet" };
-  }
-  const type = bandToType(total);
-  if (type === "mendix") {
-    return { total, answered, leaning: "Mendix", label: "Leaning Mendix" };
-  }
-  if (type === "aws-native") {
-    return {
-      total,
-      answered,
-      leaning: "AWS-native",
-      label: "Leaning AWS-native",
-    };
-  }
-  return { total, answered, leaning: "Hybrid", label: "Mixed / hybrid signal" };
 }

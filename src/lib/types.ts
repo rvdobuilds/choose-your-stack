@@ -7,7 +7,15 @@ export type ResultLabel =
 
 export type RecommendationStrength = "Strong" | "Clear" | "Balanced";
 
+export type SignalQuality = "High" | "Medium" | "Low";
+
 export type Signal = -2 | -1 | 0 | 1 | 2;
+
+export type FitDirection =
+  | "business_process"
+  | "technical_platform"
+  | "hybrid"
+  | "unclear";
 
 export type QuestionId =
   | "solution-type"
@@ -28,6 +36,7 @@ export type AnswerOption = {
   label: string;
   description?: string;
   score: Signal;
+  fitDirection: FitDirection;
 };
 
 export type Question = {
@@ -61,6 +70,8 @@ export type AssessmentResult = {
   hardGateReason?: string;
   hardGateExplanation?: string;
   recommendationStrength: RecommendationStrength;
+  signalQuality: SignalQuality;
+  unclearAnswerCount: number;
   recommendation: string;
   closingNote: string;
   whyItFits: string[];

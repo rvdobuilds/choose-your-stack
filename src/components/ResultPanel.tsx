@@ -1,7 +1,12 @@
 import Link from "next/link";
 import type { AssessmentResult } from "@/lib/types";
 import { TOTAL_QUESTIONS } from "@/lib/questions";
-import { EXECUTIVE_SUMMARY, RESULT_DISCLAIMER } from "@/lib/result-copy";
+import {
+  EXECUTIVE_SUMMARY,
+  LOW_SIGNAL_QUALITY_NOTE,
+  RESULT_DISCLAIMER,
+  WHAT_WOULD_CHANGE,
+} from "@/lib/result-copy";
 
 type Props = {
   result: AssessmentResult | null;
@@ -67,7 +72,7 @@ function ExecutiveSummary({ result }: { result: AssessmentResult }) {
       aria-label="Executive summary"
       className="cys-card-elevated mb-4 px-4 py-5 sm:mb-5 sm:px-10 sm:py-8"
     >
-      <div className="grid gap-4 sm:grid-cols-3 sm:gap-6">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
         <div>
           <p className="cys-eyebrow">Recommendation</p>
           <p className="cys-text mt-2 text-lg font-semibold leading-snug sm:text-xl">
@@ -85,6 +90,17 @@ function ExecutiveSummary({ result }: { result: AssessmentResult }) {
           <p className="cys-text-muted mt-2 text-sm leading-6">
             {summary.validation}
           </p>
+        </div>
+        <div>
+          <p className="cys-eyebrow">Signal quality</p>
+          <p className="cys-text-muted mt-2 text-sm leading-6">
+            {result.signalQuality}
+          </p>
+          {result.signalQuality === "Low" ? (
+            <p className="cys-text-subtle mt-2 text-sm leading-6">
+              {LOW_SIGNAL_QUALITY_NOTE}
+            </p>
+          ) : null}
         </div>
       </div>
     </section>
@@ -164,6 +180,32 @@ function ResultMemo({ result }: { result: AssessmentResult }) {
           </div>
         </div>
       </article>
+
+      <section
+        aria-labelledby="what-would-change-heading"
+        className="cys-card-muted mt-4 px-4 py-5 sm:mt-5 sm:px-8 sm:py-7"
+      >
+        <h3
+          id="what-would-change-heading"
+          className="cys-text text-base font-semibold leading-snug sm:text-lg"
+        >
+          What would change this recommendation?
+        </h3>
+        <ul className="mt-3 flex flex-col gap-2.5">
+          {WHAT_WOULD_CHANGE[result.type].map((item) => (
+            <li
+              key={item}
+              className="cys-text-soft flex gap-3 text-sm leading-6"
+            >
+              <span
+                aria-hidden
+                className="cys-text-faint mt-2 inline-block h-px w-3 flex-shrink-0 bg-current"
+              />
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
     </>
   );
 }

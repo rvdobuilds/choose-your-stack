@@ -14,15 +14,15 @@ Choose Your Stack makes the decision more explicit by evaluating workload fit ac
 
 - solution type
 - UI importance
-- business logic complexity
+- logic complexity
 - data and event volume
 - performance and latency requirements
 - integration complexity
-- business criticality
-- time-to-market versus technical flexibility
+- operational criticality
+- delivery and change pattern
 - team capability
-- runtime cost elasticity
-- platform lock-in tolerance
+- runtime demand variability
+- custom control over runtime and architecture
 - observability and testability needs
 
 The tool produces one of three candidate directions:
@@ -178,9 +178,11 @@ Each answer has:
 
 - a score
 - a weight
-- a direction signal
+- a workload-direction label (business/process, technical/platform, hybrid or mixed, or unclear)
 
-Scoring direction:
+The score scale is still used to compute a weighted total:
+
+Scoring direction (numeric input to the model):
 
 ```txt
 -2 = strong Mendix signal
@@ -197,6 +199,8 @@ score <= -20 => Mendix candidate
 score >= 20  => AWS-native candidate
 otherwise    => Hybrid candidate
 ```
+
+The app also surfaces **signal quality** (High, Medium, Low) based on how many answers were “Not clear yet”, without calling it confidence.
 
 Hard gates override the score when the workload profile clearly indicates Mendix, AWS-native, or hybrid.
 
