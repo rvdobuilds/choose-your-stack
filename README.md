@@ -1,36 +1,296 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Choose Your Stack
 
-## Getting Started
+A practical enterprise decision workbench for choosing between **Mendix**, **AWS-native engineering**, or a **hybrid architecture**.
 
-First, run the development server:
+Choose Your Stack helps IT managers, platform owners, domain architects, solution architects, and engineering leads make a defensible first platform-direction recommendation before delivery starts.
+
+It is not a platform verdict. It is a workload-fit assessment based on explicit trade-offs.
+
+## Core idea
+
+Enterprise teams often choose a solution direction too early, based on platform preference, existing capability, politics, delivery pressure, or incomplete assumptions.
+
+Choose Your Stack makes the decision more explicit by evaluating workload fit across:
+
+- solution type
+- UI importance
+- business logic complexity
+- data and event volume
+- performance and latency requirements
+- integration complexity
+- business criticality
+- time-to-market versus technical flexibility
+- team capability
+- runtime cost elasticity
+- platform lock-in tolerance
+- observability and testability needs
+
+The tool produces one of three candidate directions:
+
+- **Mendix candidate**
+- **AWS-native candidate**
+- **Hybrid candidate**
+
+## Positioning
+
+Use this headline exactly:
+
+```txt
+Choose the right platform direction before you start building.
+```
+
+Use this subline exactly:
+
+```txt
+A practical decision tool for choosing between Mendix, AWS-native engineering, or a hybrid architecture.
+```
+
+## Product principles
+
+Choose Your Stack should feel like an architecture decision workbench.
+
+It should be:
+
+- objective
+- pragmatic
+- critical
+- calm
+- enterprise-grade
+- workload-oriented
+- trade-off driven
+
+It should not be:
+
+- a playful quiz
+- a vendor battle
+- a Mendix sales page
+- an AWS sales page
+- a generic SaaS dashboard
+- a pricing calculator
+- an AI-generated architecture document tool
+
+## Visual direction
+
+The visual system is:
+
+```txt
+Dark ivory architecture workbench
+```
+
+Use the UI system in:
+
+```txt
+docs/ui-system.md
+```
+
+Main references:
+
+1. Launchframe for structure
+2. Rvdobuilds.com for dark/ivory tone
+3. My Workframe only for the generated recommendation memo feel
+
+Do not make the product blue-ish.
+
+Do not use the My Workframe blue-violet palette.
+
+## Recommended stack
+
+This project is intended to be a small deterministic web app.
+
+Recommended baseline:
+
+- Next.js App Router
+- TypeScript
+- Tailwind
+- local deterministic decision logic
+- no auth
+- no database
+- no external APIs
+- no analytics
+- no AI features
+
+## Getting started
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the local development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```txt
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Run the production build:
 
-## Learn More
+```bash
+npm run build
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Recommended project structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```txt
+app/
+  page.tsx
+components/
+  page-shell.tsx
+  header.tsx
+  card.tsx
+  button.tsx
+  tabs.tsx
+  progress-bar.tsx
+  question-card.tsx
+  answer-option.tsx
+  result-memo.tsx
+  score-breakdown.tsx
+  cost-model-card.tsx
+lib/
+  decision-model.ts
+  scoring.ts
+  result-copy.ts
+  types.ts
+docs/
+  brief.md
+  sitemap.md
+  ui-system.md
+  ux-rules.md
+  content-model.md
+AGENTS.md
+CLAUDE.md
+README.md
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Only create files that are useful. Keep the implementation simple.
 
-## Deploy on Vercel
+## Decision model
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The app uses a deterministic weighted scoring model.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Each answer has:
+
+- a score
+- a weight
+- a direction signal
+
+Scoring direction:
+
+```txt
+-2 = strong Mendix signal
+-1 = lean Mendix
+ 0 = neutral / unclear / hybrid
++1 = lean AWS-native
++2 = strong AWS-native
+```
+
+Default outcome thresholds:
+
+```txt
+score <= -20 => Mendix candidate
+score >= 20  => AWS-native candidate
+otherwise    => Hybrid candidate
+```
+
+Hard gates override the score when the workload profile clearly indicates Mendix, AWS-native, or hybrid.
+
+The content model lives in:
+
+```txt
+docs/content-model.md
+```
+
+## Runtime cost model
+
+Choose Your Stack should explain runtime economics without pretending to be a precise pricing calculator.
+
+Use this framing:
+
+```txt
+The key question is not “which platform is cheaper?” The key question is “which cost model matches this workload?”
+```
+
+AWS-native costs are usually more usage-based. Costs depend on the architecture and may include compute, queues, event routing, databases, storage, observability, networking, and security services.
+
+Mendix costs are usually more platform, environment, and capacity-oriented. Costs may be influenced by runtime resources, database capacity, storage, environments, HA/fallback, scaling, and enterprise licensing agreements.
+
+Do not imply that AWS is always cheaper.
+
+Do not imply that Mendix is always expensive.
+
+## Required result framing
+
+Use this result disclaimer exactly:
+
+```txt
+This is not a platform verdict. It is a workload-fit recommendation based on the answers provided.
+```
+
+The result should read like an architecture recommendation memo, not a quiz result.
+
+Recommended result sections:
+
+```txt
+Recommended direction
+Why this direction fits
+Main trade-offs
+Validation questions before final decision
+Cost model implication
+Score breakdown
+```
+
+## Documentation
+
+Read these files before making product, UX, content, or UI changes:
+
+```txt
+AGENTS.md
+CLAUDE.md
+docs/brief.md
+docs/sitemap.md
+docs/ui-system.md
+docs/ux-rules.md
+docs/content-model.md
+```
+
+## Development rules
+
+Keep decision logic local and deterministic.
+
+Keep scoring logic pure.
+
+Keep the content model separate from rendering where practical.
+
+Avoid unnecessary dependencies.
+
+Avoid broad refactors.
+
+Avoid product drift.
+
+Do not add:
+
+- authentication
+- database storage
+- payments
+- analytics
+- external APIs
+- AI features
+- chart libraries
+- animation libraries
+- a large component library
+
+## Final output expectation for coding agents
+
+When a coding agent changes the project, the final response should include:
+
+```txt
+OUTPUT:
+- changed files listed
+- short explanation.
+```
