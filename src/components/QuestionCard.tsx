@@ -27,6 +27,18 @@ export function QuestionCard({ question, selectedAnswerId, onSelect }: Props) {
           {question.description}
         </p>
       ) : null}
+      {question.examples && question.examples.length > 0 ? (
+        <dl className="mt-4 grid gap-x-6 gap-y-2 sm:grid-cols-2">
+          {question.examples.map((example) => (
+            <div key={example.label} className="flex gap-2 text-sm leading-6">
+              <dt className="cys-text-soft min-w-[5.5rem] shrink-0 font-medium">
+                {example.label}
+              </dt>
+              <dd className="cys-text-subtle">{example.description}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : null}
 
       <div
         role="radiogroup"

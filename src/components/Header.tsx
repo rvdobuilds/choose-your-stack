@@ -6,7 +6,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const NAV_ITEMS = [
   { label: "Start", href: "/" },
-  { label: "Framework", href: "/framework" },
+  { label: "Quick scan", href: "/quick-scan" },
+  { label: "Detailed assessment", href: "/detailed-assessment" },
   { label: "Result", href: "/result" },
   { label: "Cost model", href: "/cost-model" },
 ] as const;
@@ -57,7 +58,7 @@ export function Header() {
 
         <nav
           aria-label="Primary"
-          className="hidden items-center gap-5 text-sm md:flex"
+          className="hidden items-center gap-5 text-sm lg:flex"
         >
           {NAV_ITEMS.map((item) => {
             const active = pathname === item.href;
@@ -78,7 +79,7 @@ export function Header() {
           })}
         </nav>
 
-        <div className="relative md:hidden">
+        <div className="relative lg:hidden">
           <button
             ref={toggleRef}
             type="button"
@@ -96,7 +97,7 @@ export function Header() {
               id="mobile-menu"
               ref={menuRef}
               role="menu"
-              className="absolute right-0 top-full mt-2 w-48 rounded-2xl border cys-border-soft bg-[var(--color-surface-elevated)] p-2 shadow-lg"
+              className="absolute right-0 top-full mt-2 w-56 rounded-2xl border cys-border-soft bg-[var(--color-surface-elevated)] p-2 shadow-lg"
             >
               {NAV_ITEMS.map((item) => {
                 const active = pathname === item.href;

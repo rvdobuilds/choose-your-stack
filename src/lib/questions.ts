@@ -133,6 +133,28 @@ export const QUESTIONS: Question[] = [
     title: "What is the expected data or event volume?",
     description:
       "Describe volume shape and predictability rather than platform preference.",
+    examples: [
+      {
+        label: "Low",
+        description:
+          "Small internal usage or low predictable transaction or event volume.",
+      },
+      {
+        label: "Medium",
+        description:
+          "Regular operational usage, mostly steady and predictable.",
+      },
+      {
+        label: "High",
+        description:
+          "Large daily event or transaction volume where throughput and runtime cost matter.",
+      },
+      {
+        label: "High / spiky",
+        description:
+          "Peak windows, bursty event flows, or usage that may require elastic scaling.",
+      },
+    ],
     weight: 3,
     answers: [
       {
@@ -173,6 +195,18 @@ export const QUESTIONS: Question[] = [
     title: "How strict are performance or latency requirements?",
     description:
       "Describe the runtime requirement the solution must meet in production.",
+    examples: [
+      {
+        label: "Normal",
+        description:
+          "Standard internal application response times are acceptable.",
+      },
+      {
+        label: "Strict",
+        description:
+          "Latency, throughput, batch windows, or operational timing materially affect the business process.",
+      },
+    ],
     weight: 3,
     answers: [
       {
@@ -215,6 +249,17 @@ export const QUESTIONS: Question[] = [
     title: "How complex are the integrations?",
     description:
       "Describe the number and nature of system interactions, not the preferred implementation style.",
+    examples: [
+      {
+        label: "Simple",
+        description: "A few standard system connections.",
+      },
+      {
+        label: "Complex",
+        description:
+          "Many systems, events, retries, idempotency, orchestration, APIs, or failure handling.",
+      },
+    ],
     weight: 3,
     answers: [
       {

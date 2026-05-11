@@ -1,3 +1,6 @@
+"use client";
+
+import { useId, useState, type ReactNode } from "react";
 import Link from "next/link";
 import type { AssessmentResult } from "@/lib/types";
 import { TOTAL_QUESTIONS } from "@/lib/questions";
@@ -18,12 +21,12 @@ export function ResultPanel({ result, answeredCount }: Props) {
     <section aria-labelledby="result-heading">
       <header>
         <p className="cys-eyebrow">Recommended direction</p>
-        <h2
+        <h1
           id="result-heading"
           className="cys-text mt-2 text-[1.4rem] font-semibold leading-tight sm:text-[2rem]"
         >
           Workload-fit recommendation
-        </h2>
+        </h1>
         {result ? (
           <p className="cys-text-faint mt-2 text-xs leading-5">
             Saved locally in this browser.
@@ -55,12 +58,18 @@ function ResultPlaceholder({ answeredCount }: { answeredCount: number }) {
         {answeredCount} of {TOTAL_QUESTIONS} answered. The result appears once
         all questions are complete.
       </p>
-      <div className="mt-5 sm:mt-6">
+      <div className="mt-5 flex flex-col gap-2.5 sm:mt-6 sm:flex-row sm:items-center sm:gap-3">
         <Link
-          href="/framework"
+          href="/detailed-assessment"
           className="cys-button-primary inline-flex h-11 min-w-[12rem] items-center justify-center rounded-full px-6 text-sm font-medium sm:h-12"
         >
-          Start assessment
+          Start detailed assessment
+        </Link>
+        <Link
+          href="/quick-scan"
+          className="cys-button-secondary inline-flex h-11 min-w-[12rem] items-center justify-center rounded-full px-6 text-sm font-medium sm:h-12"
+        >
+          Start quick scan
         </Link>
       </div>
       <p className="cys-text-subtle mt-5 max-w-2xl text-sm leading-6 sm:mt-6">
@@ -70,92 +79,59 @@ function ResultPlaceholder({ answeredCount }: { answeredCount: number }) {
   );
 }
 
-function ExecutiveSummary({ result }: { result: AssessmentResult }) {
+function ResultMemo({ result }: { result: AssessmentResult }) {
   const summary = EXECUTIVE_SUMMARY[result.type];
   return (
-    <section
-      aria-label="Executive summary"
-      className="cys-card-elevated mb-4 px-4 py-5 sm:mb-5 sm:px-10 sm:py-8"
-    >
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
-        <div>
-          <p className="cys-eyebrow">Recommendation</p>
-          <p className="cys-text mt-2 text-lg font-semibold leading-snug sm:text-xl">
+    <>
+      <section
+        aria-label="Executive summary"
+        className="cys-card-elevated px-4 py-5 sm:px-10 sm:py-8"
+      >
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
+          <SummaryCell label="Recommendation" emphasis>
             {result.label}
-          </p>
-        </div>
-        <div>
-          <p className="cys-eyebrow">Reason</p>
-          <p className="cys-text-muted mt-2 text-sm leading-6">
-            {summary.reason}
-          </p>
-        </div>
-        <div>
-          <p className="cys-eyebrow">Main validation</p>
-          <p className="cys-text-muted mt-2 text-sm leading-6">
+          </SummaryCell>
+          <SummaryCell label="Reason">{summary.reason}</SummaryCell>
+          <SummaryCell label="Main validation">
             {summary.validation}
-          </p>
+          </SummaryCell>
+          <SummaryCell label="Signal quality">
+            <span>{result.signalQuality}</span>
+            {result.signalQuality === "Low" ? (
+              <span className="cys-text-subtle mt-2 block text-sm leading-6">
+                {LOW_SIGNAL_QUALITY_NOTE}
+              </span>
+            ) : null}
+          </SummaryCell>
         </div>
-        <div>
-          <p className="cys-eyebrow">Signal quality</p>
-          <p className="cys-text-muted mt-2 text-sm leading-6">
-            {result.signalQuality}
-          </p>
-          {result.signalQuality === "Low" ? (
-            <p className="cys-text-subtle mt-2 text-sm leading-6">
-              {LOW_SIGNAL_QUALITY_NOTE}
+        <p className="cys-text-soft mt-5 max-w-3xl text-sm leading-7 sm:mt-6 sm:text-base">
+          Recommended direction:{" "}
+          <span className="cys-text font-medium">{result.label}</span>
+        </p>
+      </section>
+
+      <article className="mt-6 sm:mt-8">
+        <header>
+          <p className="cys-eyebrow">Recommended direction</p>
+          <h2 className="cys-text mt-2 text-[1.4rem] font-semibold leading-tight sm:text-[1.9rem]">
+            {result.label}
+          </h2>
+          {result.hardGateApplied ? (
+            <p className="cys-text-faint mt-2 text-[0.7rem] uppercase tracking-[0.18em]">
+              Decisive workload signal
             </p>
           ) : null}
-        </div>
-      </div>
-    </section>
-  );
-}
+        </header>
 
-function ResultMemo({ result }: { result: AssessmentResult }) {
-  return (
-    <>
-      <ExecutiveSummary result={result} />
-      <article className="cys-card-elevated px-4 py-6 sm:px-12 sm:py-12">
-        <div className="flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-          <span className="cys-pill inline-flex h-7 items-center px-3 text-xs uppercase tracking-[0.16em]">
-            Recommendation
-          </span>
-          {result.hardGateApplied && (
-            <span className="cys-text-faint text-[0.7rem] uppercase tracking-[0.18em]">
-              Decisive workload signal
-            </span>
-          )}
-        </div>
-
-        <h3 className="cys-text mt-3 text-[1.5rem] font-semibold leading-tight sm:mt-5 sm:text-[2.25rem]">
-          {result.label}
-        </h3>
-
-        <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2 sm:mt-4">
-          <div>
-            <p className="cys-eyebrow">Recommendation strength</p>
-            <p className="cys-text-soft mt-1 text-sm font-medium">
-              {result.recommendationStrength}
-            </p>
-          </div>
-          <div>
-            <p className="cys-eyebrow">Basis</p>
-            <p className="cys-text-subtle mt-1 text-sm">
-              Weighted workload signals{result.hardGateApplied ? " and decisive workload rules" : ""}.
-            </p>
-          </div>
-        </div>
-
-        <p className="cys-text-soft mt-3 max-w-3xl text-base leading-7 sm:mt-5 sm:text-[1.05rem] sm:leading-8">
+        <p className="cys-text-soft mt-5 max-w-3xl text-base leading-7 sm:text-[1.05rem] sm:leading-8">
           {result.recommendation}
         </p>
 
-        {result.hardGateApplied && result.hardGateExplanation && (
+        {result.hardGateApplied && result.hardGateExplanation ? (
           <p className="cys-text-muted mt-3 max-w-3xl text-sm leading-6">
             {result.hardGateExplanation}
           </p>
-        )}
+        ) : null}
 
         <p className="cys-text-muted mt-3 max-w-3xl text-sm leading-6">
           {result.closingNote}
@@ -165,74 +141,127 @@ function ResultMemo({ result }: { result: AssessmentResult }) {
           {RESULT_DISCLAIMER}
         </p>
 
-        <hr className="cys-divider mt-5 sm:mt-8" />
+        <hr className="cys-divider mt-8 sm:mt-10" />
 
-        <div className="mt-5 grid gap-4 sm:mt-8 sm:grid-cols-2 sm:gap-6">
-          <MemoSection title="Why this direction fits" items={result.whyItFits} />
-          <MemoSection title="Main trade-offs" items={result.tradeOffs} />
+        <div className="mt-8 grid gap-8 sm:mt-10 sm:grid-cols-2 sm:gap-10">
+          <MemoSection
+            title="Why this direction fits"
+            items={result.whyItFits}
+          />
+          <MemoSection
+            title="Main trade-offs"
+            items={result.tradeOffs}
+          />
         </div>
 
-        <div className="mt-4 grid gap-4 sm:mt-8 sm:grid-cols-2 sm:gap-6">
-          <MemoSection
-            title="Validation questions before final decision"
-            items={result.validationQuestions}
-          />
-          <div className="cys-card-muted px-4 py-4 sm:px-5 sm:py-5">
-            <p className="cys-eyebrow">Cost model implication</p>
-            <p className="cys-text-soft mt-3 text-sm leading-6">
+        <div className="mt-10 flex flex-col gap-3 sm:mt-12">
+          <Disclosure title="Validation questions before final decision">
+            <ul className="flex flex-col gap-2.5">
+              {result.validationQuestions.map((item) => (
+                <BulletItem key={item}>{item}</BulletItem>
+              ))}
+            </ul>
+            <p className="cys-eyebrow mt-6">Cost model implication</p>
+            <p className="cys-text-soft mt-3 text-sm leading-7">
               {result.costModelImplication}
             </p>
-          </div>
+          </Disclosure>
+
+          <Disclosure title="What would change this recommendation?">
+            <ul className="flex flex-col gap-2.5">
+              {WHAT_WOULD_CHANGE[result.type].map((item) => (
+                <BulletItem key={item}>{item}</BulletItem>
+              ))}
+            </ul>
+          </Disclosure>
         </div>
       </article>
-
-      <section
-        aria-labelledby="what-would-change-heading"
-        className="cys-card-muted mt-4 px-4 py-5 sm:mt-5 sm:px-8 sm:py-7"
-      >
-        <h3
-          id="what-would-change-heading"
-          className="cys-text text-base font-semibold leading-snug sm:text-lg"
-        >
-          What would change this recommendation?
-        </h3>
-        <ul className="mt-3 flex flex-col gap-2.5">
-          {WHAT_WOULD_CHANGE[result.type].map((item) => (
-            <li
-              key={item}
-              className="cys-text-soft flex gap-3 text-sm leading-6"
-            >
-              <span
-                aria-hidden
-                className="cys-text-faint mt-2 inline-block h-px w-3 flex-shrink-0 bg-current"
-              />
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
     </>
+  );
+}
+
+function SummaryCell({
+  label,
+  emphasis,
+  children,
+}: {
+  label: string;
+  emphasis?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <div>
+      <p className="cys-eyebrow">{label}</p>
+      <p
+        className={
+          emphasis
+            ? "cys-text mt-2 text-lg font-semibold leading-snug sm:text-xl"
+            : "cys-text-muted mt-2 text-sm leading-6"
+        }
+      >
+        {children}
+      </p>
+    </div>
   );
 }
 
 function MemoSection({ title, items }: { title: string; items: string[] }) {
   return (
-    <div className="cys-card-muted px-4 py-4 sm:px-5 sm:py-5">
-      <p className="cys-eyebrow">{title}</p>
-      <ul className="mt-3 flex flex-col gap-2.5">
+    <div>
+      <h3 className="cys-text text-base font-semibold leading-snug sm:text-lg">
+        {title}
+      </h3>
+      <ul className="mt-4 flex flex-col gap-2.5">
         {items.map((item) => (
-          <li
-            key={item}
-            className="cys-text-soft flex gap-3 text-sm leading-6"
-          >
-            <span
-              aria-hidden
-              className="cys-text-faint mt-2 inline-block h-px w-3 flex-shrink-0 bg-current"
-            />
-            <span>{item}</span>
-          </li>
+          <BulletItem key={item}>{item}</BulletItem>
         ))}
       </ul>
+    </div>
+  );
+}
+
+function BulletItem({ children }: { children: ReactNode }) {
+  return (
+    <li className="cys-text-soft flex gap-3 text-sm leading-6">
+      <span
+        aria-hidden
+        className="cys-text-faint mt-2 inline-block h-px w-3 flex-shrink-0 bg-current"
+      />
+      <span>{children}</span>
+    </li>
+  );
+}
+
+function Disclosure({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  const id = useId();
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="cys-card-muted px-4 py-4 sm:px-6 sm:py-5">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={id}
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center justify-between gap-4 text-left"
+      >
+        <span className="cys-text text-sm font-medium sm:text-base">
+          {title}
+        </span>
+        <span aria-hidden className="cys-text-faint text-xs">
+          {open ? "Hide" : "Show"}
+        </span>
+      </button>
+      {open ? (
+        <div id={id} className="mt-5">
+          {children}
+        </div>
+      ) : null}
     </div>
   );
 }

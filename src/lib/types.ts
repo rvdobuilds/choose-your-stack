@@ -39,11 +39,17 @@ export type AnswerOption = {
   fitDirection: FitDirection;
 };
 
+export type QuestionExample = {
+  label: string;
+  description: string;
+};
+
 export type Question = {
   id: QuestionId;
   number: number;
   title: string;
   description?: string;
+  examples?: QuestionExample[];
   weight: number;
   answers: AnswerOption[];
 };
