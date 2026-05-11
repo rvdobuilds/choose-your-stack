@@ -18,8 +18,11 @@ export function Footer() {
           <Link href="/" className="cys-link">
             Start
           </Link>
-          <Link href="/framework" className="cys-link">
-            Framework
+          <Link href="/quick-scan" className="cys-link">
+            Quick scan
+          </Link>
+          <Link href="/detailed-assessment" className="cys-link">
+            Detailed assessment
           </Link>
           <Link href="/result" className="cys-link">
             Result

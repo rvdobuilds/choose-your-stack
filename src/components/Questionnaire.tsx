@@ -44,16 +44,16 @@ export function Questionnaire() {
 
   const handleReset = () => {
     reset();
-    router.replace("/framework");
+    router.replace("/detailed-assessment");
   };
 
   if (!storageHydrated) {
     return (
-      <section aria-labelledby="framework-heading" aria-busy="true">
+      <section aria-labelledby="assessment-heading" aria-busy="true">
         <header>
-          <p className="cys-eyebrow">Framework</p>
+          <p className="cys-eyebrow">Detailed assessment</p>
           <h2
-            id="framework-heading"
+            id="assessment-heading"
             className="cys-text mt-2 text-[1.4rem] font-semibold leading-tight sm:text-[2rem]"
           >
             Workload-fit assessment
@@ -67,11 +67,11 @@ export function Questionnaire() {
   }
 
   return (
-    <section aria-labelledby="framework-heading">
+    <section aria-labelledby="assessment-heading">
       <header>
-        <p className="cys-eyebrow">Framework</p>
+        <p className="cys-eyebrow">Detailed assessment</p>
         <h2
-          id="framework-heading"
+          id="assessment-heading"
           className="cys-text mt-2 text-[1.4rem] font-semibold leading-tight sm:text-[2rem]"
         >
           Workload-fit assessment
