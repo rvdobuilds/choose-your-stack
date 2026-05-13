@@ -26,7 +26,7 @@ export function ChoosePath() {
   return (
     <section
       aria-labelledby="choose-path-heading"
-      className="mt-20 sm:mt-28"
+      className="mt-16 sm:mt-24"
     >
       <p className="cys-eyebrow">Choose your path</p>
       <h2
@@ -40,7 +40,7 @@ export function ChoosePath() {
         <PathBlock
           eyebrow="Path 1"
           title="Quick scan"
-          copy="Five questions. Live fit direction. Useful for early orientation or a quick first discussion."
+          copy="Five questions for a fast first direction."
           ctaHref="/quick-scan"
           ctaLabel="Start quick scan"
           subtleLink={
@@ -52,7 +52,7 @@ export function ChoosePath() {
         <PathBlock
           eyebrow="Path 2"
           title="Detailed assessment"
-          copy="Twelve questions. More traceable reasoning, validation points, and cost-model implications."
+          copy="Twelve questions for a traceable recommendation."
           ctaHref="/detailed-assessment"
           ctaLabel="Start detailed assessment"
           subtleLink={

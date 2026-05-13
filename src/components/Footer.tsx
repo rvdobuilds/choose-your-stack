@@ -2,13 +2,12 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="mt-20 border-t cys-border-soft py-10 sm:mt-24">
+    <footer className="mt-16 border-t cys-border-soft py-10 sm:mt-20">
       <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-4 px-5 sm:flex-row sm:items-center sm:justify-between sm:px-8">
         <div>
           <p className="cys-text text-sm font-semibold">Choose Your Stack</p>
           <p className="cys-text-subtle mt-1 text-xs leading-5 sm:text-sm">
-            A workload-fit decision tool for Mendix, AWS-native engineering, and
-            hybrid architecture.
+            A workload-fit decision tool.
           </p>
         </div>
         <nav
