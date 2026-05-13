@@ -50,16 +50,21 @@ export function Questionnaire() {
   if (!storageHydrated) {
     return (
       <section aria-labelledby="assessment-heading" aria-busy="true">
-        <header>
-          <p className="cys-eyebrow">Detailed assessment</p>
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
           <h2
             id="assessment-heading"
-            className="cys-text mt-2 text-[1.4rem] font-semibold leading-tight sm:text-[2rem]"
+            className="cys-text text-base font-semibold"
           >
-            Workload-fit assessment
+            Detailed assessment
+            <span className="cys-text-faint ml-2 text-sm font-normal">
+              · Question 1 of {TOTAL_QUESTIONS}
+            </span>
           </h2>
-        </header>
-        <p className="cys-text-subtle mt-6 text-sm leading-6">
+          <span className="cys-text-faint text-[0.7rem]">
+            Saved locally in this browser.
+          </span>
+        </div>
+        <p className="cys-text-subtle mt-4 text-sm leading-6">
           Restoring assessment…
         </p>
       </section>
@@ -67,67 +72,75 @@ export function Questionnaire() {
   }
 
   return (
-    <section aria-labelledby="assessment-heading">
-      <header>
-        <p className="cys-eyebrow">Detailed assessment</p>
-        <h2
-          id="assessment-heading"
-          className="cys-text mt-2 text-[1.4rem] font-semibold leading-tight sm:text-[2rem]"
-        >
-          Workload-fit assessment
+    <section
+      aria-labelledby="assessment-heading"
+      className="mx-auto max-w-[960px]"
+    >
+      {/* Compact header row */}
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <h2 id="assessment-heading" className="cys-text text-base font-semibold">
+          Detailed assessment
+          <span className="cys-text-faint ml-2 text-sm font-normal">
+            · Question {currentQuestionIndex + 1} of {TOTAL_QUESTIONS}
+          </span>
         </h2>
-        <p className="cys-text-muted mt-2 max-w-2xl text-sm leading-6 sm:mt-3 sm:text-base sm:leading-7">
-          Answer twelve workload, capability, and cost-model questions. One at a
-          time. The recommendation appears after completion.
-        </p>
-      </header>
+        <span className="cys-text-faint text-[0.7rem]">
+          Saved locally in this browser.
+        </span>
+      </div>
 
-      <div className="mt-5 sm:mt-6">
-        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-xs">
-          <span className="cys-text-subtle">
-            Question {currentQuestionIndex + 1} of {TOTAL_QUESTIONS} ·{" "}
+      {/* Compact progress area */}
+      <div className="mt-3">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+          <span className="cys-text-subtle text-xs">
+            Question {currentQuestionIndex + 1} of {TOTAL_QUESTIONS} &middot;{" "}
             {answeredCount} of {TOTAL_QUESTIONS} answered
           </span>
-          <span className="cys-text-faint">Assessment in progress.</span>
+          <div className="flex items-center gap-3">
+            <span className="cys-text-faint text-xs">
+              Assessment in progress.
+            </span>
+            <button
+              type="button"
+              onClick={handleReset}
+              className="cys-text-faint rounded-md px-0.5 text-xs underline-offset-4 hover:underline focus-visible:underline"
+            >
+              Reset
+            </button>
+          </div>
         </div>
-        <p className="cys-text-faint mt-1.5 text-[0.7rem] leading-5">
-          Saved locally in this browser.
-        </p>
         <div
-          className="cys-progress-track mt-2 h-1.5"
+          className="cys-progress-track mt-2 h-1"
           role="progressbar"
           aria-valuenow={currentQuestionIndex + 1}
           aria-valuemin={1}
           aria-valuemax={TOTAL_QUESTIONS}
           aria-label="Assessment progress"
         >
-          <div className="cys-progress-fill" style={{ width: `${progress}%` }} />
-        </div>
-        <div className="mt-3 flex flex-wrap items-center justify-end gap-x-4 gap-y-1">
-          <button
-            type="button"
-            onClick={handleReset}
-            className="cys-text-faint -mx-1 rounded-md px-1 py-1 text-xs underline-offset-4 hover:underline focus-visible:underline"
-          >
-            Start over
-          </button>
+          <div
+            className="cys-progress-fill"
+            style={{ width: `${progress}%` }}
+          />
         </div>
       </div>
 
-      <div className="mt-5 sm:mt-6">
+      {/* Question card */}
+      <div className="mt-4">
         <QuestionCard
+          key={currentQuestion.id}
           question={currentQuestion}
           selectedAnswerId={selectedAnswerId}
           onSelect={select}
         />
       </div>
 
-      <div className="mt-4 flex items-center justify-between gap-3 sm:mt-6">
+      {/* Desktop action row */}
+      <div className="mt-4 hidden items-center justify-between gap-3 sm:flex">
         <button
           type="button"
           onClick={handleBack}
           disabled={isFirst}
-          className="cys-button-secondary inline-flex h-11 min-w-[6rem] items-center justify-center rounded-full px-5 text-sm font-medium sm:h-12"
+          className="cys-button-secondary inline-flex h-10 min-w-[5.5rem] items-center justify-center rounded-full px-5 text-sm font-medium"
         >
           Back
         </button>
@@ -135,11 +148,39 @@ export function Questionnaire() {
           type="button"
           onClick={handleNext}
           disabled={!selectedAnswerId}
-          className="cys-button-primary inline-flex h-11 flex-1 items-center justify-center rounded-full px-5 text-sm font-medium sm:h-12 sm:flex-none sm:min-w-[10rem]"
+          className="cys-button-primary inline-flex h-10 min-w-[8.5rem] items-center justify-center rounded-full px-5 text-sm font-medium"
         >
           {isLast ? "Finish" : "Next"}
         </button>
       </div>
+
+      {/* Mobile sticky action bar */}
+      <div
+        className="fixed bottom-0 inset-x-0 z-10 flex items-center gap-3 border-t px-4 py-3 sm:hidden"
+        style={{
+          borderColor: "var(--color-border-muted)",
+          background: "var(--color-page-elevated)",
+        }}
+      >
+        <button
+          type="button"
+          onClick={handleBack}
+          disabled={isFirst}
+          className="cys-button-secondary inline-flex h-11 min-w-[5rem] items-center justify-center rounded-full px-4 text-sm font-medium"
+        >
+          Back
+        </button>
+        <button
+          type="button"
+          onClick={handleNext}
+          disabled={!selectedAnswerId}
+          className="cys-button-primary inline-flex h-11 flex-1 items-center justify-center rounded-full px-5 text-sm font-medium"
+        >
+          {isLast ? "Finish" : "Next"}
+        </button>
+      </div>
+      {/* Spacer so mobile sticky bar does not cover content */}
+      <div className="h-20 sm:hidden" aria-hidden="true" />
     </section>
   );
 }
