@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { Question, QuestionId } from "@/lib/types";
 import { TOTAL_QUESTIONS } from "@/lib/questions";
 
@@ -8,42 +11,57 @@ type Props = {
 };
 
 export function QuestionCard({ question, selectedAnswerId, onSelect }: Props) {
+  const [helpOpen, setHelpOpen] = useState(false);
   const groupName = `q-${question.id}`;
+  const hasExamples = question.examples && question.examples.length > 0;
+
   return (
-    <fieldset className="cys-card px-4 py-4 sm:px-8 sm:py-8">
+    <fieldset className="cys-card px-4 py-3 sm:px-5 sm:py-4">
       <legend className="sr-only">{question.title}</legend>
 
-      <div className="flex items-baseline justify-between gap-4">
-        <p className="cys-eyebrow">
-          Question {question.number} of {TOTAL_QUESTIONS}
-        </p>
-      </div>
+      <p className="cys-eyebrow">
+        Question {question.number} of {TOTAL_QUESTIONS}
+      </p>
 
-      <h3 className="cys-text mt-3 text-[1.2rem] font-medium leading-snug sm:mt-4 sm:text-[1.4rem]">
+      <h3 className="cys-text mt-2 text-[1.05rem] font-medium leading-snug sm:text-[1.2rem]">
         {question.title}
       </h3>
+
       {question.description ? (
-        <p className="cys-text-subtle mt-2 max-w-2xl text-sm leading-6">
+        <p className="cys-text-subtle mt-1.5 max-w-2xl text-sm leading-5">
           {question.description}
         </p>
       ) : null}
-      {question.examples && question.examples.length > 0 ? (
-        <dl className="mt-4 grid gap-x-6 gap-y-2 sm:grid-cols-2">
-          {question.examples.map((example) => (
-            <div key={example.label} className="flex gap-2 text-sm leading-6">
-              <dt className="cys-text-soft min-w-[5.5rem] shrink-0 font-medium">
-                {example.label}
-              </dt>
-              <dd className="cys-text-subtle">{example.description}</dd>
-            </div>
-          ))}
-        </dl>
+
+      {hasExamples ? (
+        <div className="mt-2">
+          <button
+            type="button"
+            aria-expanded={helpOpen}
+            onClick={() => setHelpOpen(!helpOpen)}
+            className="cys-text-faint text-xs underline-offset-4 hover:underline focus-visible:underline"
+          >
+            {helpOpen ? "Hide examples" : "Help me choose"}
+          </button>
+          {helpOpen ? (
+            <dl className="mt-2.5 grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
+              {question.examples!.map((example) => (
+                <div key={example.label} className="flex gap-2 text-xs leading-5">
+                  <dt className="cys-text-soft min-w-[5rem] shrink-0 font-medium">
+                    {example.label}
+                  </dt>
+                  <dd className="cys-text-subtle">{example.description}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
+        </div>
       ) : null}
 
       <div
         role="radiogroup"
         aria-label={question.title}
-        className="mt-5 flex flex-col gap-2.5 sm:mt-6 sm:gap-3"
+        className="mt-3 flex flex-col gap-1.5"
       >
         {question.answers.map((answer) => {
           const selected = selectedAnswerId === answer.id;
@@ -53,7 +71,7 @@ export function QuestionCard({ question, selectedAnswerId, onSelect }: Props) {
               key={answer.id}
               htmlFor={inputId}
               data-selected={selected}
-              className="cys-answer flex min-h-[56px] cursor-pointer items-start gap-3 px-4 py-3 sm:min-h-[64px] sm:items-center sm:gap-4 sm:px-5 sm:py-4"
+              className="cys-answer flex min-h-[44px] cursor-pointer items-center gap-3 px-3 py-2.5 sm:px-4 sm:py-2.5"
             >
               <input
                 id={inputId}
@@ -64,8 +82,8 @@ export function QuestionCard({ question, selectedAnswerId, onSelect }: Props) {
                 onChange={() => onSelect(question.id, answer.id)}
                 className="sr-only"
               />
-              <span aria-hidden className="cys-answer-marker mt-1 sm:mt-0" />
-              <span className="flex-1 text-[0.95rem] leading-6 cys-text-soft">
+              <span aria-hidden className="cys-answer-marker shrink-0" />
+              <span className="cys-text-soft flex-1 text-[0.875rem] leading-5">
                 {answer.label}
               </span>
             </label>

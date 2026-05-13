@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useQuickScan } from "@/lib/quick-scan-context";
 import {
@@ -30,8 +31,14 @@ export function QuickScan() {
   if (!storageHydrated) {
     return (
       <section aria-busy="true">
-        <QuickScanHeader />
-        <p className="cys-text-subtle mt-6 text-sm leading-6">
+        <CompactHeader
+          id="quick-scan-heading"
+          as="h1"
+          title="Quick scan"
+          questionNum={1}
+          total={QUICK_SCAN_TOTAL}
+        />
+        <p className="cys-text-subtle mt-4 text-sm leading-6">
           Restoring quick scan…
         </p>
       </section>
@@ -58,64 +65,78 @@ export function QuickScan() {
 
   return (
     <section aria-labelledby="quick-scan-heading">
-      <QuickScanHeader />
-
-      <FitMeter summary={summary} />
+      <CompactHeader
+        id="quick-scan-heading"
+        as="h1"
+        title="Quick scan"
+        questionNum={safeIndex + 1}
+        total={QUICK_SCAN_TOTAL}
+      />
 
       {complete ? (
         <QuickScanResult summary={summary} onReset={reset} />
       ) : (
         <>
-          <div className="mt-8 sm:mt-10">
-            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-xs">
-              <span className="cys-text-subtle">
-                Question {safeIndex + 1} of {QUICK_SCAN_TOTAL} · {answeredCount}{" "}
-                of {QUICK_SCAN_TOTAL} answered
-              </span>
-              <span className="cys-text-faint">Quick scan in progress.</span>
-            </div>
-            <p className="cys-text-faint mt-1.5 text-[0.7rem] leading-5">
-              Saved locally in this browser. Detailed assessment is not
-              affected.
-            </p>
-            <div
-              className="cys-progress-track mt-2 h-1.5"
-              role="progressbar"
-              aria-valuenow={safeIndex + 1}
-              aria-valuemin={1}
-              aria-valuemax={QUICK_SCAN_TOTAL}
-              aria-label="Quick scan progress"
-            >
-              <div
-                className="cys-progress-fill"
-                style={{ width: `${progress}%` }}
+          <CompactProgressArea
+            questionNum={safeIndex + 1}
+            total={QUICK_SCAN_TOTAL}
+            answeredCount={answeredCount}
+            progress={progress}
+            statusText="Quick scan in progress."
+            onReset={reset}
+            progressLabel="Quick scan progress"
+          />
+
+          <div className="mt-4 sm:grid sm:grid-cols-[1fr_216px] sm:gap-5 lg:grid-cols-[1fr_236px] lg:gap-6">
+            {/* Main column: question + desktop controls */}
+            <div>
+              <QuickScanQuestionCard
+                key={currentQuestion.id}
+                question={currentQuestion}
+                selectedAnswerId={selectedAnswerId}
+                onSelect={select}
               />
+
+              {/* Desktop action row */}
+              <div className="mt-4 hidden items-center justify-between gap-3 sm:flex">
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  disabled={isFirst}
+                  className="cys-button-secondary inline-flex h-10 min-w-[5.5rem] items-center justify-center rounded-full px-5 text-sm font-medium"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  disabled={!selectedAnswerId || isLast}
+                  className="cys-button-primary inline-flex h-10 min-w-[8.5rem] items-center justify-center rounded-full px-5 text-sm font-medium"
+                >
+                  {isLast ? "Answered" : "Next"}
+                </button>
+              </div>
             </div>
-            <div className="mt-3 flex flex-wrap items-center justify-end gap-x-4 gap-y-1">
-              <button
-                type="button"
-                onClick={reset}
-                className="cys-text-faint -mx-1 rounded-md px-1 py-1 text-xs underline-offset-4 hover:underline focus-visible:underline"
-              >
-                Start over
-              </button>
-            </div>
+
+            {/* Right panel: live fit direction (desktop only) */}
+            <aside className="hidden sm:block" aria-label="Live fit direction">
+              <FitPanel summary={summary} />
+            </aside>
           </div>
 
-          <div className="mt-5 sm:mt-6">
-            <QuickScanQuestionCard
-              question={currentQuestion}
-              selectedAnswerId={selectedAnswerId}
-              onSelect={select}
-            />
-          </div>
-
-          <div className="mt-4 flex items-center justify-between gap-3 sm:mt-6">
+          {/* Mobile sticky action bar */}
+          <div
+            className="fixed bottom-0 inset-x-0 z-10 flex items-center gap-3 border-t px-4 py-3 sm:hidden"
+            style={{
+              borderColor: "var(--color-border-muted)",
+              background: "var(--color-page-elevated)",
+            }}
+          >
             <button
               type="button"
               onClick={handleBack}
               disabled={isFirst}
-              className="cys-button-secondary inline-flex h-11 min-w-[6rem] items-center justify-center rounded-full px-5 text-sm font-medium sm:h-12"
+              className="cys-button-secondary inline-flex h-11 min-w-[5rem] items-center justify-center rounded-full px-4 text-sm font-medium"
             >
               Back
             </button>
@@ -123,80 +144,135 @@ export function QuickScan() {
               type="button"
               onClick={handleNext}
               disabled={!selectedAnswerId || isLast}
-              className="cys-button-primary inline-flex h-11 flex-1 items-center justify-center rounded-full px-5 text-sm font-medium sm:h-12 sm:flex-none sm:min-w-[10rem]"
+              className="cys-button-primary inline-flex h-11 flex-1 items-center justify-center rounded-full px-5 text-sm font-medium"
             >
               {isLast ? "Answered" : "Next"}
             </button>
           </div>
+          {/* Spacer so mobile sticky bar does not cover content */}
+          <div className="h-20 sm:hidden" aria-hidden="true" />
         </>
       )}
     </section>
   );
 }
 
-function QuickScanHeader() {
+function CompactHeader({
+  id,
+  as: Tag,
+  title,
+  questionNum,
+  total,
+}: {
+  id: string;
+  as: "h1" | "h2";
+  title: string;
+  questionNum: number;
+  total: number;
+}) {
   return (
-    <header>
-      <p className="cys-eyebrow">Quick scan</p>
-      <h1
-        id="quick-scan-heading"
-        className="cys-text mt-2 text-[1.5rem] font-semibold leading-tight sm:text-[2.25rem]"
-      >
-        Quick scan
-      </h1>
-      <p className="cys-text-muted mt-2 max-w-2xl text-sm leading-6 sm:mt-3 sm:text-base sm:leading-7">
-        Answer five questions for a fast workload-fit direction.
-      </p>
-      <p className="cys-text-subtle mt-2 max-w-2xl text-sm leading-6">
-        For early orientation only. Use the detailed assessment when the
-        decision needs to be traceable.
-      </p>
-    </header>
+    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+      <Tag id={id} className="cys-text text-base font-semibold">
+        {title}
+        <span className="cys-text-faint ml-2 text-sm font-normal">
+          · Question {questionNum} of {total}
+        </span>
+      </Tag>
+      <span className="cys-text-faint text-[0.7rem]">
+        Saved locally in this browser.
+      </span>
+    </div>
   );
 }
 
-function FitMeter({ summary }: { summary: QuickScanSummary }) {
+function CompactProgressArea({
+  questionNum,
+  total,
+  answeredCount,
+  progress,
+  statusText,
+  onReset,
+  progressLabel,
+}: {
+  questionNum: number;
+  total: number;
+  answeredCount: number;
+  progress: number;
+  statusText: string;
+  onReset: () => void;
+  progressLabel: string;
+}) {
+  return (
+    <div className="mt-3">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+        <span className="cys-text-subtle text-xs">
+          Question {questionNum} of {total} &middot; {answeredCount} of {total}{" "}
+          answered
+        </span>
+        <div className="flex items-center gap-3">
+          <span className="cys-text-faint text-xs">{statusText}</span>
+          <button
+            type="button"
+            onClick={onReset}
+            className="cys-text-faint rounded-md px-0.5 text-xs underline-offset-4 hover:underline focus-visible:underline"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
+      <div
+        className="cys-progress-track mt-2 h-1"
+        role="progressbar"
+        aria-valuenow={questionNum}
+        aria-valuemin={1}
+        aria-valuemax={total}
+        aria-label={progressLabel}
+      >
+        <div className="cys-progress-fill" style={{ width: `${progress}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function FitPanel({ summary }: { summary: QuickScanSummary }) {
   const total =
-    summary.counts.mendix + summary.counts["aws-native"] + summary.counts.hybrid;
+    summary.counts.mendix +
+    summary.counts["aws-native"] +
+    summary.counts.hybrid;
   const safeTotal = total === 0 ? 1 : total;
   const leaderLabel = quickScanLeaderLabel(summary.leader);
 
   return (
-    <section
-      aria-label="Live fit direction"
-      className="mt-6 sm:mt-8"
-    >
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <p className="cys-eyebrow">Live fit direction</p>
-        <p className="cys-text-soft text-sm font-medium">{leaderLabel}</p>
-      </div>
-      <div className="mt-3 grid gap-2.5 sm:grid-cols-3 sm:gap-4">
-        <FitBar
+    <div className="cys-card px-4 py-4">
+      <p className="cys-eyebrow mb-2">Live fit direction</p>
+      <p className="cys-text-soft mb-4 text-sm font-medium">{leaderLabel}</p>
+      <div className="flex flex-col gap-3">
+        <CompactFitBar
           label="Mendix fit"
           count={summary.counts.mendix}
           total={safeTotal}
         />
-        <FitBar
+        <CompactFitBar
           label="AWS-native fit"
           count={summary.counts["aws-native"]}
           total={safeTotal}
         />
-        <FitBar
+        <CompactFitBar
           label="Hybrid fit"
           count={summary.counts.hybrid}
           total={safeTotal}
         />
       </div>
       {summary.unclearOverflow ? (
-        <p className="cys-text-subtle mt-3 text-sm leading-6">
-          Too many inputs are unclear for a reliable quick scan.
+        <p className="cys-text-subtle mt-3 text-xs leading-5">
+          Too many unclear inputs for a reliable direction.
         </p>
       ) : null}
-    </section>
+    </div>
   );
 }
 
-function FitBar({
+function CompactFitBar({
   label,
   count,
   total,
@@ -208,11 +284,11 @@ function FitBar({
   const pct = Math.round((count / total) * 100);
   return (
     <div>
-      <div className="flex items-baseline justify-between gap-2">
-        <span className="cys-text-soft text-sm font-medium">{label}</span>
+      <div className="mb-1.5 flex items-baseline justify-between gap-2">
+        <span className="cys-text-subtle text-xs">{label}</span>
         <span className="cys-text-faint text-xs tabular-nums">{count}</span>
       </div>
-      <div className="cys-progress-track mt-2 h-1.5">
+      <div className="cys-progress-track h-1">
         <div
           className="cys-progress-fill"
           style={{ width: `${count === 0 ? 0 : Math.max(pct, 4)}%` }}
@@ -231,40 +307,56 @@ function QuickScanQuestionCard({
   selectedAnswerId: string | undefined;
   onSelect: (questionId: string, answerId: string) => void;
 }) {
+  const [helpOpen, setHelpOpen] = useState(false);
   const groupName = `qs-${question.id}`;
+  const hasExamples = question.examples && question.examples.length > 0;
+
   return (
-    <fieldset className="cys-card px-4 py-4 sm:px-8 sm:py-8">
+    <fieldset className="cys-card px-4 py-3 sm:px-5 sm:py-4">
       <legend className="sr-only">{question.title}</legend>
 
-      <p className="cys-eyebrow">
-        Question {question.number} of {QUICK_SCAN_TOTAL}
-      </p>
-
-      <h2 className="cys-text mt-3 text-[1.2rem] font-medium leading-snug sm:mt-4 sm:text-[1.4rem]">
+      <h2 className="cys-text text-[1.05rem] font-medium leading-snug sm:text-[1.15rem]">
         {question.title}
       </h2>
+
       {question.description ? (
-        <p className="cys-text-subtle mt-2 max-w-2xl text-sm leading-6">
+        <p className="cys-text-subtle mt-1.5 text-sm leading-5">
           {question.description}
         </p>
       ) : null}
-      {question.examples && question.examples.length > 0 ? (
-        <dl className="mt-4 grid gap-x-6 gap-y-2 sm:grid-cols-2">
-          {question.examples.map((example) => (
-            <div key={example.label} className="flex gap-2 text-sm leading-6">
-              <dt className="cys-text-soft min-w-[6rem] shrink-0 font-medium">
-                {example.label}
-              </dt>
-              <dd className="cys-text-subtle">{example.description}</dd>
-            </div>
-          ))}
-        </dl>
+
+      {hasExamples ? (
+        <div className="mt-2">
+          <button
+            type="button"
+            aria-expanded={helpOpen}
+            onClick={() => setHelpOpen(!helpOpen)}
+            className="cys-text-faint text-xs underline-offset-4 hover:underline focus-visible:underline"
+          >
+            {helpOpen ? "Hide examples" : "Help me choose"}
+          </button>
+          {helpOpen ? (
+            <dl className="mt-2.5 grid gap-x-6 gap-y-1.5 sm:grid-cols-2">
+              {question.examples!.map((example) => (
+                <div
+                  key={example.label}
+                  className="flex gap-2 text-xs leading-5"
+                >
+                  <dt className="cys-text-soft min-w-[5rem] shrink-0 font-medium">
+                    {example.label}
+                  </dt>
+                  <dd className="cys-text-subtle">{example.description}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
+        </div>
       ) : null}
 
       <div
         role="radiogroup"
         aria-label={question.title}
-        className="mt-5 flex flex-col gap-2.5 sm:mt-6 sm:gap-3"
+        className="mt-3 flex flex-col gap-1.5"
       >
         {question.answers.map((answer) => {
           const selected = selectedAnswerId === answer.id;
@@ -274,7 +366,7 @@ function QuickScanQuestionCard({
               key={answer.id}
               htmlFor={inputId}
               data-selected={selected}
-              className="cys-answer flex min-h-[56px] cursor-pointer items-start gap-3 px-4 py-3 sm:min-h-[64px] sm:items-center sm:gap-4 sm:px-5 sm:py-4"
+              className="cys-answer flex min-h-[44px] cursor-pointer items-center gap-3 px-3 py-2.5 sm:px-4 sm:py-3"
             >
               <input
                 id={inputId}
@@ -285,8 +377,8 @@ function QuickScanQuestionCard({
                 onChange={() => onSelect(question.id, answer.id)}
                 className="sr-only"
               />
-              <span aria-hidden className="cys-answer-marker mt-1 sm:mt-0" />
-              <span className="flex-1 text-[0.95rem] leading-6 cys-text-soft">
+              <span aria-hidden className="cys-answer-marker shrink-0" />
+              <span className="cys-text-soft flex-1 text-[0.875rem] leading-5">
                 {answer.label}
               </span>
             </label>
@@ -309,7 +401,7 @@ function QuickScanResult({
   const validation = quickScanValidation(summary.leader);
 
   return (
-    <article className="mt-8 sm:mt-10">
+    <article className="mt-6 sm:mt-8">
       <p className="cys-eyebrow">Quick scan result</p>
       <h2 className="cys-text mt-2 text-[1.4rem] font-semibold leading-tight sm:text-[1.8rem]">
         Likely direction
