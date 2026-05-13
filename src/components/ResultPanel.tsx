@@ -7,7 +7,9 @@ import { TOTAL_QUESTIONS } from "@/lib/questions";
 import {
   EXECUTIVE_SUMMARY,
   LOW_SIGNAL_QUALITY_NOTE,
+  NEXT_CHECKS,
   RESULT_DISCLAIMER,
+  SCORE_BREAKDOWN_INTRO,
   WHAT_WOULD_CHANGE,
 } from "@/lib/result-copy";
 
@@ -20,10 +22,9 @@ export function ResultPanel({ result, answeredCount }: Props) {
   return (
     <section aria-labelledby="result-heading">
       <header>
-        <p className="cys-eyebrow">Recommended direction</p>
         <h1
           id="result-heading"
-          className="cys-text mt-2 text-[1.4rem] font-semibold leading-tight sm:text-[2rem]"
+          className="cys-text text-[1.4rem] font-semibold leading-tight sm:text-[2rem]"
         >
           Workload-fit recommendation
         </h1>
@@ -72,110 +73,120 @@ function ResultPlaceholder({ answeredCount }: { answeredCount: number }) {
           Start quick scan
         </Link>
       </div>
-      <p className="cys-text-subtle mt-5 max-w-2xl text-sm leading-6 sm:mt-6">
-        {RESULT_DISCLAIMER}
-      </p>
     </div>
   );
 }
 
 function ResultMemo({ result }: { result: AssessmentResult }) {
   const summary = EXECUTIVE_SUMMARY[result.type];
+
   return (
     <>
-      <section
-        aria-label="Executive summary"
-        className="cys-card-elevated px-4 py-5 sm:px-10 sm:py-8"
-      >
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
-          <SummaryCell label="Recommendation" emphasis>
+      {/* Compact recommendation summary */}
+      <div className="cys-card-elevated px-4 py-5 sm:px-8 sm:py-7">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
+          <SummaryCell label="Recommended direction" emphasis>
             {result.label}
           </SummaryCell>
-          <SummaryCell label="Reason">{summary.reason}</SummaryCell>
-          <SummaryCell label="Main validation">
-            {summary.validation}
-          </SummaryCell>
+          <SummaryCell label="Why">{summary.reason}</SummaryCell>
+          <SummaryCell label="Main validation">{summary.validation}</SummaryCell>
           <SummaryCell label="Signal quality">
             <span>{result.signalQuality}</span>
             {result.signalQuality === "Low" ? (
-              <span className="cys-text-subtle mt-2 block text-sm leading-6">
+              <span className="cys-text-subtle mt-2 block text-xs leading-5">
                 {LOW_SIGNAL_QUALITY_NOTE}
               </span>
             ) : null}
           </SummaryCell>
         </div>
-        <p className="cys-text-soft mt-5 max-w-3xl text-sm leading-7 sm:mt-6 sm:text-base">
-          Recommended direction:{" "}
-          <span className="cys-text font-medium">{result.label}</span>
-        </p>
-      </section>
-
-      <article className="mt-6 sm:mt-8">
-        <header>
-          <p className="cys-eyebrow">Recommended direction</p>
-          <h2 className="cys-text mt-2 text-[1.4rem] font-semibold leading-tight sm:text-[1.9rem]">
-            {result.label}
-          </h2>
-          {result.hardGateApplied ? (
-            <p className="cys-text-faint mt-2 text-[0.7rem] uppercase tracking-[0.18em]">
-              Decisive workload signal
-            </p>
-          ) : null}
-        </header>
-
-        <p className="cys-text-soft mt-5 max-w-3xl text-base leading-7 sm:text-[1.05rem] sm:leading-8">
-          {result.recommendation}
-        </p>
-
-        {result.hardGateApplied && result.hardGateExplanation ? (
-          <p className="cys-text-muted mt-3 max-w-3xl text-sm leading-6">
-            {result.hardGateExplanation}
+        {result.hardGateApplied ? (
+          <p className="cys-text-faint mt-4 text-[0.7rem] uppercase tracking-[0.16em]">
+            Decisive workload signal applied
           </p>
         ) : null}
+      </div>
 
-        <p className="cys-text-muted mt-3 max-w-3xl text-sm leading-6">
-          {result.closingNote}
-        </p>
+      {/* Next checks — open by default */}
+      <section aria-label="Next checks" className="mt-8 sm:mt-10">
+        <h2 className="cys-eyebrow">Next checks</h2>
+        <ul className="mt-3 flex flex-col gap-2">
+          {NEXT_CHECKS[result.type].map((item) => (
+            <BulletItem key={item}>{item}</BulletItem>
+          ))}
+        </ul>
+      </section>
 
-        <p className="cys-text-subtle mt-4 max-w-3xl text-sm leading-6 sm:mt-5">
-          {RESULT_DISCLAIMER}
-        </p>
+      {/* Collapsible detail disclosures */}
+      <div className="mt-8 flex flex-col gap-2 sm:mt-10">
+        <Disclosure title="Why this direction fits">
+          <ul className="flex flex-col gap-2.5">
+            {result.whyItFits.map((item) => (
+              <BulletItem key={item}>{item}</BulletItem>
+            ))}
+          </ul>
+        </Disclosure>
 
-        <hr className="cys-divider mt-8 sm:mt-10" />
+        <Disclosure title="Main trade-offs">
+          <ul className="flex flex-col gap-2.5">
+            {result.tradeOffs.map((item) => (
+              <BulletItem key={item}>{item}</BulletItem>
+            ))}
+          </ul>
+        </Disclosure>
 
-        <div className="mt-8 grid gap-8 sm:mt-10 sm:grid-cols-2 sm:gap-10">
-          <MemoSection
-            title="Why this direction fits"
-            items={result.whyItFits}
-          />
-          <MemoSection
-            title="Main trade-offs"
-            items={result.tradeOffs}
-          />
-        </div>
+        <Disclosure title="Validation questions before final decision">
+          <ul className="flex flex-col gap-2.5">
+            {result.validationQuestions.map((item) => (
+              <BulletItem key={item}>{item}</BulletItem>
+            ))}
+          </ul>
+        </Disclosure>
 
-        <div className="mt-10 flex flex-col gap-3 sm:mt-12">
-          <Disclosure title="Validation questions before final decision">
-            <ul className="flex flex-col gap-2.5">
-              {result.validationQuestions.map((item) => (
-                <BulletItem key={item}>{item}</BulletItem>
-              ))}
-            </ul>
-            <p className="cys-eyebrow mt-6">Cost model implication</p>
-            <p className="cys-text-soft mt-3 text-sm leading-7">
-              {result.costModelImplication}
-            </p>
-          </Disclosure>
+        <Disclosure title="What would change this recommendation?">
+          <ul className="flex flex-col gap-2.5">
+            {WHAT_WOULD_CHANGE[result.type].map((item) => (
+              <BulletItem key={item}>{item}</BulletItem>
+            ))}
+          </ul>
+        </Disclosure>
 
-          <Disclosure title="What would change this recommendation?">
-            <ul className="flex flex-col gap-2.5">
-              {WHAT_WOULD_CHANGE[result.type].map((item) => (
-                <BulletItem key={item}>{item}</BulletItem>
-              ))}
-            </ul>
-          </Disclosure>
-        </div>
-      </article>
+        <Disclosure title="Cost model implication">
+          <p className="cys-text-soft text-sm leading-7">
+            {result.costModelImplication}
+          </p>
+        </Disclosure>
+
+        <Disclosure title="How the recommendation was built">
+          <ScoringDetails result={result} />
+        </Disclosure>
+      </div>
+
+      {/* Disclaimer */}
+      <p className="cys-text-subtle mt-8 max-w-2xl text-sm leading-6 sm:mt-10">
+        {RESULT_DISCLAIMER}
+      </p>
+
+      {/* Actions */}
+      <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-3">
+        <Link
+          href="/detailed-assessment"
+          className="cys-button-primary inline-flex h-11 items-center justify-center rounded-full px-6 text-sm font-medium sm:h-12"
+        >
+          Retake detailed assessment
+        </Link>
+        <Link
+          href="/quick-scan"
+          className="cys-button-secondary inline-flex h-11 items-center justify-center rounded-full px-6 text-sm font-medium sm:h-12"
+        >
+          Start quick scan
+        </Link>
+        <Link
+          href="/cost-model"
+          className="cys-button-ghost inline-flex h-11 items-center justify-center rounded-full px-6 text-sm font-medium sm:h-12"
+        >
+          View cost model
+        </Link>
+      </div>
     </>
   );
 }
@@ -201,21 +212,6 @@ function SummaryCell({
       >
         {children}
       </p>
-    </div>
-  );
-}
-
-function MemoSection({ title, items }: { title: string; items: string[] }) {
-  return (
-    <div>
-      <h3 className="cys-text text-base font-semibold leading-snug sm:text-lg">
-        {title}
-      </h3>
-      <ul className="mt-4 flex flex-col gap-2.5">
-        {items.map((item) => (
-          <BulletItem key={item}>{item}</BulletItem>
-        ))}
-      </ul>
     </div>
   );
 }
@@ -264,4 +260,158 @@ function Disclosure({
       ) : null}
     </div>
   );
+}
+
+function ScoringDetails({ result }: { result: AssessmentResult }) {
+  const tableId = useId();
+  const indexId = useId();
+  const [showTable, setShowTable] = useState(false);
+  const [showIndex, setShowIndex] = useState(false);
+
+  return (
+    <div>
+      <dl className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <dt className="cys-eyebrow">Primary fit</dt>
+          <dd className="cys-text-soft mt-1 text-sm font-medium">
+            {result.label}
+          </dd>
+        </div>
+        <div>
+          <dt className="cys-eyebrow">Recommendation strength</dt>
+          <dd className="cys-text-soft mt-1 text-sm font-medium">
+            {result.recommendationStrength}
+          </dd>
+        </div>
+        <div>
+          <dt className="cys-eyebrow">Signal quality</dt>
+          <dd className="cys-text-soft mt-1 text-sm font-medium">
+            {result.signalQuality}
+          </dd>
+        </div>
+        <div>
+          <dt className="cys-eyebrow">Rule-based override</dt>
+          <dd className="cys-text-soft mt-1 text-sm font-medium">
+            {result.hardGateApplied ? "Yes" : "No"}
+          </dd>
+        </div>
+      </dl>
+
+      {result.hardGateApplied && result.hardGateExplanation ? (
+        <p className="cys-text-subtle mt-4 text-sm leading-6">
+          {result.hardGateExplanation}
+        </p>
+      ) : (
+        <p className="cys-text-subtle mt-4 text-sm leading-6">
+          No rule-based override triggered. Result derived from the weighted
+          workload signals.
+        </p>
+      )}
+
+      <p className="cys-text-subtle mt-3 text-xs leading-5">
+        {SCORE_BREAKDOWN_INTRO}
+      </p>
+
+      <div className="mt-4">
+        <button
+          type="button"
+          aria-expanded={showTable}
+          aria-controls={tableId}
+          onClick={() => setShowTable((o) => !o)}
+          className="cys-button-secondary inline-flex h-9 items-center justify-center rounded-full px-4 text-sm font-medium"
+        >
+          {showTable ? "Hide scoring details" : "View scoring details"}
+        </button>
+      </div>
+
+      {showTable ? (
+        <div id={tableId} className="mt-5">
+          <div className="hidden grid-cols-[1.4fr_1.4fr_minmax(8rem,0.85fr)_minmax(4rem,0.4fr)] gap-4 py-2 text-[0.7rem] uppercase tracking-[0.18em] cys-text-faint sm:grid">
+            <span>Axis</span>
+            <span>Selected answer</span>
+            <span>Signal direction</span>
+            <span className="text-right">Weight</span>
+          </div>
+          <ul className="border-t cys-border-soft">
+            {result.breakdown.map((row, idx) => (
+              <li
+                key={row.questionId}
+                className={`py-4 sm:grid sm:grid-cols-[1.4fr_1.4fr_minmax(8rem,0.85fr)_minmax(4rem,0.4fr)] sm:items-center sm:gap-4 ${
+                  idx === 0 ? "" : "border-t cys-border-soft"
+                }`}
+              >
+                <div>
+                  <p className="cys-text-soft text-sm font-medium">
+                    {row.questionTitle}
+                  </p>
+                  <p className="cys-text-faint mt-1 text-xs sm:hidden">
+                    Weight {row.weight}
+                  </p>
+                </div>
+                <p className="cys-text-muted mt-2 text-sm leading-6 sm:mt-0">
+                  {row.selectedAnswerLabel}
+                </p>
+                <p className="cys-text-subtle mt-2 text-xs sm:mt-0 sm:text-sm">
+                  {row.signalLabel}
+                </p>
+                <p className="cys-text-subtle mt-2 text-xs sm:mt-0 sm:text-right sm:text-sm tabular-nums">
+                  <span className="sm:hidden">Weight </span>
+                  {row.weight}
+                </p>
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-4 border-t cys-border-soft pt-4">
+            <button
+              type="button"
+              aria-expanded={showIndex}
+              aria-controls={indexId}
+              onClick={() => setShowIndex((o) => !o)}
+              className="cys-link inline-flex h-9 items-center text-sm underline-offset-4 hover:underline"
+            >
+              {showIndex
+                ? "Hide internal fit index"
+                : "Show internal fit index"}
+            </button>
+            {showIndex ? (
+              <div id={indexId} className="mt-4">
+                <p className="cys-text-subtle text-xs leading-6">
+                  Internal fit index is an unsigned model input. It is used to
+                  band the recommendation, not to rank platforms by quality.
+                  Negative values reflect business/process-heavy signals;
+                  positive values reflect technical/platform-heavy signals.
+                </p>
+                <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <dt className="cys-eyebrow">Internal fit index</dt>
+                    <dd className="cys-text-soft mt-1 text-sm tabular-nums">
+                      {result.score > 0 ? `+${result.score}` : result.score}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="cys-eyebrow">Default band result</dt>
+                    <dd className="cys-text-soft mt-1 text-sm">
+                      {bandLabel(result.baseType)}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function bandLabel(type: AssessmentResult["baseType"]): string {
+  switch (type) {
+    case "mendix":
+      return "Mendix candidate";
+    case "aws-native":
+      return "AWS-native candidate";
+    case "hybrid":
+      return "Hybrid candidate";
+  }
 }
