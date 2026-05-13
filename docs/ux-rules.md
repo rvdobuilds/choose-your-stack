@@ -102,7 +102,7 @@ Answer cards must be large, clear, and tappable.
 Each answer card should have:
 
 - label
-- optional short explanation if needed
+- optional short secondary line under the label when it clarifies workload shape (for example volume/load options)
 - selected state
 
 Selected state must use:

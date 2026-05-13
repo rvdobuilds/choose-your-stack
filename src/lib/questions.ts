@@ -132,58 +132,57 @@ export const QUESTIONS: Question[] = [
     number: 4,
     title: "What is the expected data or event volume?",
     description:
-      "Describe volume shape and predictability rather than platform preference.",
+      "Describe the workload shape and predictability. Examples are indicative, not hard thresholds.",
     examples: [
       {
-        label: "Low",
+        label: "Low/steady",
         description:
-          "Small internal usage or low predictable transaction or event volume.",
+          "Small internal usage, predictable process volume, no meaningful peak windows.",
       },
       {
-        label: "Medium",
+        label: "High/spiky",
         description:
-          "Regular operational usage, mostly steady and predictable.",
-      },
-      {
-        label: "High",
-        description:
-          "Large daily event or transaction volume where throughput and runtime cost matter.",
-      },
-      {
-        label: "High / spiky",
-        description:
-          "Peak windows, bursty event flows, or usage that may require elastic scaling.",
+          "Large transaction or event volume, peak windows, bursty flows, retries, back-pressure, or elastic scaling concerns.",
       },
     ],
     weight: 3,
     answers: [
       {
         id: "low-volume-predictable",
-        label: "Low volume and predictable usage",
+        label: "Low and predictable",
+        description:
+          "Small internal user group, mostly manual or process actions, no high-volume event stream.",
         score: -2,
         fitDirection: "business_process",
       },
       {
         id: "medium-volume-steady",
-        label: "Medium volume and mostly steady usage",
+        label: "Medium and mostly steady",
+        description:
+          "Regular operational usage, predictable business peaks, limited throughput concern.",
         score: -1,
         fitDirection: "business_process",
       },
       {
         id: "high-volume-mostly-predictable",
-        label: "High volume, but mostly predictable",
+        label: "High but predictable",
+        description:
+          "Large daily transaction or event volume where throughput, database load, observability, or runtime cost should be designed explicitly.",
         score: 1,
         fitDirection: "technical_platform",
       },
       {
         id: "high-volume-peaks-spikes",
-        label: "High volume with clear peaks or spikes",
+        label: "High volume with peaks or spikes",
+        description:
+          "Burst windows, event streams, retries, back-pressure, batch peaks, or elastic scaling concerns.",
         score: 2,
         fitDirection: "technical_platform",
       },
       {
         id: "not-clear-yet",
         label: "Not clear yet",
+        description: "Expected volume or peak pattern is not known.",
         score: 0,
         fitDirection: "unclear",
       },

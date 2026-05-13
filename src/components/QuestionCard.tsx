@@ -14,27 +14,34 @@ export function QuestionCard({ question, selectedAnswerId, onSelect }: Props) {
   const [helpOpen, setHelpOpen] = useState(false);
   const groupName = `q-${question.id}`;
   const hasExamples = question.examples && question.examples.length > 0;
+  const hasAnswerSubtext = question.answers.some((a) => a.description);
 
   return (
-    <fieldset className="cys-card px-4 py-3 sm:px-5 sm:py-4">
+    <fieldset
+      className={`cys-card px-4 sm:px-5 ${hasAnswerSubtext ? "py-2.5 sm:py-3" : "py-3 sm:py-4"}`}
+    >
       <legend className="sr-only">{question.title}</legend>
 
       <p className="cys-eyebrow">
         Question {question.number} of {TOTAL_QUESTIONS}
       </p>
 
-      <h3 className="cys-text mt-2 text-[1.05rem] font-medium leading-snug sm:text-[1.2rem]">
+      <h3
+        className={`cys-text text-[1.05rem] font-medium leading-snug sm:text-[1.2rem] ${hasAnswerSubtext ? "mt-1.5" : "mt-2"}`}
+      >
         {question.title}
       </h3>
 
       {question.description ? (
-        <p className="cys-text-subtle mt-1.5 max-w-2xl text-sm leading-5">
+        <p
+          className={`cys-text-subtle max-w-2xl text-sm leading-5 ${hasAnswerSubtext ? "mt-1" : "mt-1.5"}`}
+        >
           {question.description}
         </p>
       ) : null}
 
       {hasExamples ? (
-        <div className="mt-2">
+        <div className={hasAnswerSubtext ? "mt-1.5" : "mt-2"}>
           <button
             type="button"
             aria-expanded={helpOpen}
@@ -61,17 +68,22 @@ export function QuestionCard({ question, selectedAnswerId, onSelect }: Props) {
       <div
         role="radiogroup"
         aria-label={question.title}
-        className="mt-3 flex flex-col gap-1.5"
+        className={`flex flex-col ${hasAnswerSubtext ? "mt-2.5 gap-1" : "mt-3 gap-1.5"}`}
       >
         {question.answers.map((answer) => {
           const selected = selectedAnswerId === answer.id;
           const inputId = `${groupName}-${answer.id}`;
+          const sub = answer.description;
           return (
             <label
               key={answer.id}
               htmlFor={inputId}
               data-selected={selected}
-              className="cys-answer flex min-h-[44px] cursor-pointer items-center gap-3 px-3 py-2.5 sm:px-4 sm:py-2.5"
+              className={`cys-answer flex min-h-[44px] cursor-pointer gap-3 px-3 sm:px-4 ${
+                sub
+                  ? "items-start py-2 sm:py-1.5"
+                  : "items-center py-2.5 sm:py-2.5"
+              }`}
             >
               <input
                 id={inputId}
@@ -82,9 +94,19 @@ export function QuestionCard({ question, selectedAnswerId, onSelect }: Props) {
                 onChange={() => onSelect(question.id, answer.id)}
                 className="sr-only"
               />
-              <span aria-hidden className="cys-answer-marker shrink-0" />
-              <span className="cys-text-soft flex-1 text-[0.875rem] leading-5">
-                {answer.label}
+              <span
+                aria-hidden
+                className={`cys-answer-marker shrink-0 ${sub ? "mt-0.5" : ""}`}
+              />
+              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="cys-text-soft text-[0.875rem] leading-snug">
+                  {answer.label}
+                </span>
+                {sub ? (
+                  <span className="cys-text-faint text-[0.72rem] leading-snug sm:text-[0.7rem]">
+                    {sub}
+                  </span>
+                ) : null}
               </span>
             </label>
           );

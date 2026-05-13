@@ -301,8 +301,15 @@ What is the expected data or event volume?
 Helper:
 
 ```txt
-Describe volume shape and predictability rather than platform preference.
+Describe the workload shape and predictability. Examples are indicative, not hard thresholds.
 ```
+
+“Help me choose” examples (axis hints, not thresholds):
+
+| Example label | Description |
+|---|---|
+| Low/steady | Small internal usage, predictable process volume, no meaningful peak windows. |
+| High/spiky | Large transaction or event volume, peak windows, bursty flows, retries, back-pressure, or elastic scaling concerns. |
 
 Weight:
 
@@ -310,15 +317,15 @@ Weight:
 3
 ```
 
-Answers:
+Answers (each option may show a short secondary line under the label in the UI):
 
-| Answer id | Label | Score |
-|---|---|---:|
-| low-volume-predictable | Low volume and predictable usage | -2 |
-| medium-volume-steady | Medium volume and mostly steady usage | -1 |
-| high-volume-mostly-predictable | High volume, but mostly predictable | 1 |
-| high-volume-peaks-spikes | High volume with clear peaks or spikes | 2 |
-| not-clear-yet | Not clear yet | 0 |
+| Answer id | Label | Optional subtext (UI) | Score |
+|---|---|---:|---:|
+| low-volume-predictable | Low and predictable | Small internal user group, mostly manual or process actions, no high-volume event stream. | -2 |
+| medium-volume-steady | Medium and mostly steady | Regular operational usage, predictable business peaks, limited throughput concern. | -1 |
+| high-volume-mostly-predictable | High but predictable | Large daily transaction or event volume where throughput, database load, observability, or runtime cost should be designed explicitly. | 1 |
+| high-volume-peaks-spikes | High volume with peaks or spikes | Burst windows, event streams, retries, back-pressure, batch peaks, or elastic scaling concerns. | 2 |
+| not-clear-yet | Not clear yet | Expected volume or peak pattern is not known. | 0 |
 
 ### 5. Performance or latency
 
@@ -938,7 +945,7 @@ Example breakdown row:
 
 ```txt
 Axis: Data or event volume
-Selected answer: High volume with clear peaks or spikes
+Selected answer: High volume with peaks or spikes
 Signal direction: Technical/platform signal
 Explanation: Describe why this axis reads as technical/platform-oriented for this workload.
 ```
