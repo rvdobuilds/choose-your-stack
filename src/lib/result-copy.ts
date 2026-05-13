@@ -6,9 +6,6 @@ export const RESULT_DISCLAIMER =
 export const HERO_HEADLINE =
   "Choose the right platform direction before you start building.";
 
-export const HERO_SUBLINE =
-  "A practical decision tool for choosing between Mendix, AWS-native engineering, or a hybrid architecture.";
-
 export const COST_MODEL_TITLE = "Runtime cost model";
 
 export const LOW_SIGNAL_QUALITY_NOTE =

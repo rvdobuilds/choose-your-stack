@@ -41,7 +41,7 @@ export function ThreeDirections() {
   return (
     <section
       aria-labelledby="three-directions-heading"
-      className="mt-20 sm:mt-28"
+      className="mt-16 sm:mt-24"
     >
       <p className="cys-eyebrow">Three common directions</p>
       <h2
