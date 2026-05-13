@@ -71,6 +71,27 @@ export const EXECUTIVE_SUMMARY: Record<
   },
 };
 
+export const NEXT_CHECKS: Record<ResultType, string[]> = {
+  mendix: [
+    "Validate expected volume and peak usage.",
+    "Check integration complexity and failure handling.",
+    "Confirm performance and operational risk are acceptable.",
+    "Confirm Mendix capability and ownership are available.",
+  ],
+  "aws-native": [
+    "Validate build effort and engineering capacity.",
+    "Confirm operational ownership, monitoring, and incident response.",
+    "Check whether a separate business UI or workflow layer is needed.",
+    "Validate full runtime cost drivers, not only compute/event cost.",
+  ],
+  hybrid: [
+    "Define the boundary between process/UI and backend/events.",
+    "Confirm ownership of each layer.",
+    "Validate integration points and failure handling between layers.",
+    "Check whether one side clearly dominates enough to avoid hybrid complexity.",
+  ],
+};
+
 export const RESULT_CONTENT: Record<ResultType, ResultContent> = {
   mendix: {
     recommendation:
